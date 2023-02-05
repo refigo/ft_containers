@@ -6,6 +6,6 @@
 
 int	main(void) {
 	std::vector<int>	realvector;
-	
+
 	return 0;
 }
