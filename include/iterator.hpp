@@ -1,6 +1,8 @@
 #ifndef MGO_ITERATOR_
 #define MGO_ITERATOR_
 
+#include "type_traits.hpp"
+
 namespace ft {
 
 // reference from stddef.h
@@ -43,8 +45,8 @@ struct __iterator_traits<_Iter, true>
     :  ____iterator_traits
       <
         _Iter,
-        is_convertible<typename _Iter::iterator_category, input_iterator_tag>::value ||
-        is_convertible<typename _Iter::iterator_category, output_iterator_tag>::value
+        is_iterator_category_convertible<typename _Iter::iterator_category, input_iterator_tag>::value ||
+        is_iterator_category_convertible<typename _Iter::iterator_category, output_iterator_tag>::value
       >
 {};
 
@@ -60,16 +62,34 @@ struct iterator_traits
 template<class _Tp>
 struct iterator_traits<_Tp*>
 {
-    typedef ptrdiff_t difference_type;
+    typedef mgo_ptrdiff_t difference_type;
     typedef typename remove_const<_Tp>::type value_type;
     typedef _Tp* pointer;
     typedef _Tp& reference;
     typedef random_access_iterator_tag iterator_category;
 };
 
+template <class FromIterCat, class ToIterCat>
+struct __is_iterator_category_convertible                                                           : public false_type {};
+
+template <class SameIterCat>
+struct __is_iterator_category_convertible<SameIterCat, SameIterCat>                                 : public true_type {};
+
+struct __is_iterator_category_convertible<forward_iterator_tag, input_iterator_tag>                 : public true_type {};
+
+struct __is_iterator_category_convertible<bidirectional_iterator_tag, input_iterator_tag>           : public true_type {};
+struct __is_iterator_category_convertible<bidirectional_iterator_tag, forward_iterator_tag>         : public true_type {};
+
+struct __is_iterator_category_convertible<random_access_iterator_tag, input_iterator_tag>           : public true_type {};
+struct __is_iterator_category_convertible<random_access_iterator_tag, forward_iterator_tag>         : public true_type {};
+struct __is_iterator_category_convertible<random_access_iterator_tag, bidirectional_iterator_tag>   : public true_type {};
+
+template <class From, class To>
+struct is_iterator_category_convertible: public __is_iterator_category_convertible<From, To> {};
+
 template <class _Tp, class _Up, bool = __has_iterator_category<iterator_traits<_Tp> >::value> // TODO: bool에서 iterator인지 체크하는건 알겠음. 근데 이게 false이면 SFINAE에 걸리나?
 struct __has_iterator_category_convertible_to
-    : public integral_constant<bool, is_convertible<typename iterator_traits<_Tp>::iterator_category, _Up>::value>
+    : public integral_constant<bool, is_iterator_category_convertible<typename iterator_traits<_Tp>::iterator_category, _Up>::value>
 {};
 
 template <class _Tp, class _Up>
