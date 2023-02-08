@@ -46,26 +46,26 @@ template <class _Tp> struct remove_cv
 
 // is_integral
 
-template <class _Tp> struct __is_integral                     : public false_type {};
-template <>          struct __is_integral<bool>               : public true_type {};
-template <>          struct __is_integral<char>               : public true_type {};
-template <>          struct __is_integral<signed char>        : public true_type {};
-template <>          struct __is_integral<unsigned char>      : public true_type {};
-template <>          struct __is_integral<wchar_t>            : public true_type {};
-#ifndef _LIBCPP_HAS_NO_UNICODE_CHARS // TODO: search
-template <>          struct __is_integral<char16_t>           : public true_type {};
-template <>          struct __is_integral<char32_t>           : public true_type {};
-#endif
-template <>          struct __is_integral<short>              : public true_type {};
-template <>          struct __is_integral<unsigned short>     : public true_type {};
-template <>          struct __is_integral<int>                : public true_type {};
-template <>          struct __is_integral<unsigned int>       : public true_type {};
-template <>          struct __is_integral<long>               : public true_type {};
-template <>          struct __is_integral<unsigned long>      : public true_type {};
-template <>          struct __is_integral<long long>          : public true_type {};
-template <>          struct __is_integral<unsigned long long> : public true_type {};
+template <class _Tp> struct __is_integral_mgo                     : public false_type {};
+template <>          struct __is_integral_mgo<bool>               : public true_type {};
+template <>          struct __is_integral_mgo<char>               : public true_type {};
+template <>          struct __is_integral_mgo<signed char>        : public true_type {};
+template <>          struct __is_integral_mgo<unsigned char>      : public true_type {};
+template <>          struct __is_integral_mgo<wchar_t>            : public true_type {};
+// #ifndef _LIBCPP_HAS_NO_UNICODE_CHARS // TODO: search
+template <>          struct __is_integral_mgo<char16_t>           : public true_type {};
+template <>          struct __is_integral_mgo<char32_t>           : public true_type {};
+// #endif
+template <>          struct __is_integral_mgo<short>              : public true_type {};
+template <>          struct __is_integral_mgo<unsigned short>     : public true_type {};
+template <>          struct __is_integral_mgo<int>                : public true_type {};
+template <>          struct __is_integral_mgo<unsigned int>       : public true_type {};
+template <>          struct __is_integral_mgo<long>               : public true_type {};
+template <>          struct __is_integral_mgo<unsigned long>      : public true_type {};
+template <>          struct __is_integral_mgo<long long>          : public true_type {};
+template <>          struct __is_integral_mgo<unsigned long long> : public true_type {};
 
-template <class _Tp> struct is_integral : public __is_integral<typename remove_cv<_Tp>::type> {};
+template <class _Tp> struct is_integral : public __is_integral_mgo<typename remove_cv<_Tp>::type> {};
 
 };
 
