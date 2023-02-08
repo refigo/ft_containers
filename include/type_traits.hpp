@@ -53,8 +53,8 @@ template <>          struct __is_integral_mgo<signed char>        : public true_
 template <>          struct __is_integral_mgo<unsigned char>      : public true_type {};
 template <>          struct __is_integral_mgo<wchar_t>            : public true_type {};
 // #ifndef _LIBCPP_HAS_NO_UNICODE_CHARS // TODO: search
-template <>          struct __is_integral_mgo<char16_t>           : public true_type {};
-template <>          struct __is_integral_mgo<char32_t>           : public true_type {};
+// template <>          struct __is_integral_mgo<char16_t>           : public true_type {};
+// template <>          struct __is_integral_mgo<char32_t>           : public true_type {};
 // #endif
 template <>          struct __is_integral_mgo<short>              : public true_type {};
 template <>          struct __is_integral_mgo<unsigned short>     : public true_type {};
