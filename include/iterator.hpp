@@ -9,12 +9,39 @@ namespace ft {
 #define __MGO_PTRDIFF_TYPE__ long int
 typedef __MGO_PTRDIFF_TYPE__ mgo_ptrdiff_t;
 
+// iterator_category
 struct input_iterator_tag {};
 struct output_iterator_tag {};
 struct forward_iterator_tag       : public input_iterator_tag {};
 struct bidirectional_iterator_tag : public forward_iterator_tag {};
 struct random_access_iterator_tag : public bidirectional_iterator_tag {};
 
+// is_iterator_category_convertible
+template <class FromIterCat, class ToIterCat>
+struct __is_iterator_category_convertible                                                           : public false_type {};
+
+template <class SameIterCat>
+struct __is_iterator_category_convertible<SameIterCat, SameIterCat>                                 : public true_type {};
+
+template <>
+struct __is_iterator_category_convertible<forward_iterator_tag, input_iterator_tag>                 : public true_type {};
+
+template <>
+struct __is_iterator_category_convertible<bidirectional_iterator_tag, input_iterator_tag>           : public true_type {};
+template <>
+struct __is_iterator_category_convertible<bidirectional_iterator_tag, forward_iterator_tag>         : public true_type {};
+
+template <>
+struct __is_iterator_category_convertible<random_access_iterator_tag, input_iterator_tag>           : public true_type {};
+template <>
+struct __is_iterator_category_convertible<random_access_iterator_tag, forward_iterator_tag>         : public true_type {};
+template <>
+struct __is_iterator_category_convertible<random_access_iterator_tag, bidirectional_iterator_tag>   : public true_type {};
+
+template <class From, class To>
+struct is_iterator_category_convertible: public __is_iterator_category_convertible<From, To> {};
+
+// has_iterator_category
 template <class _Tp>
 struct __has_iterator_category
 {
@@ -26,6 +53,7 @@ public:
     static const bool value = sizeof(__test<_Tp>(0)) == 1;
 };
 
+// iterator_traits
 template <class _Iter, bool> struct ____iterator_traits {};
 
 template <class _Iter>
@@ -69,24 +97,7 @@ struct iterator_traits<_Tp*>
     typedef random_access_iterator_tag iterator_category;
 };
 
-template <class FromIterCat, class ToIterCat>
-struct __is_iterator_category_convertible                                                           : public false_type {};
-
-template <class SameIterCat>
-struct __is_iterator_category_convertible<SameIterCat, SameIterCat>                                 : public true_type {};
-
-struct __is_iterator_category_convertible<forward_iterator_tag, input_iterator_tag>                 : public true_type {};
-
-struct __is_iterator_category_convertible<bidirectional_iterator_tag, input_iterator_tag>           : public true_type {};
-struct __is_iterator_category_convertible<bidirectional_iterator_tag, forward_iterator_tag>         : public true_type {};
-
-struct __is_iterator_category_convertible<random_access_iterator_tag, input_iterator_tag>           : public true_type {};
-struct __is_iterator_category_convertible<random_access_iterator_tag, forward_iterator_tag>         : public true_type {};
-struct __is_iterator_category_convertible<random_access_iterator_tag, bidirectional_iterator_tag>   : public true_type {};
-
-template <class From, class To>
-struct is_iterator_category_convertible: public __is_iterator_category_convertible<From, To> {};
-
+// For checking iterator tag
 template <class _Tp, class _Up, bool = __has_iterator_category<iterator_traits<_Tp> >::value> // TODO: bool에서 iterator인지 체크하는건 알겠음. 근데 이게 false이면 SFINAE에 걸리나?
 struct __has_iterator_category_convertible_to
     : public integral_constant<bool, is_iterator_category_convertible<typename iterator_traits<_Tp>::iterator_category, _Up>::value>
@@ -107,6 +118,7 @@ struct __is_bidirectional_iterator : public __has_iterator_category_convertible_
 template <class _Tp>
 struct __is_random_access_iterator : public __has_iterator_category_convertible_to<_Tp, random_access_iterator_tag> {};
 
+// iterator
 template<class _Category, class _Tp, class _Distance = mgo_ptrdiff_t,
          class _Pointer = _Tp*, class _Reference = _Tp&>
 struct iterator
