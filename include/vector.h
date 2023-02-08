@@ -1,8 +1,11 @@
 #ifndef MGO_VECTOR_H_
 #define MGO_VECTOR_H_
 
-#include <memory>
 #include "type_traits.hpp"
+
+#include <memory> // allocator
+#include <algorithm> // min(), max()
+#include <limits> // numeric_limits
 
 namespace ft {
 
@@ -79,11 +82,22 @@ public:
 
 	/*	(1) empty container constructor (default constructor)
 		Constructs an empty container, with no elements. */
-	// vector() {}
 	explicit vector(const allocator_type& __a = allocator_type()) : __base(__a) {}
+	// vector() {}
+	// explicit vector(const allocator_type& __a) : __base(__a) {}
 
 	/*	(2) fill constructor
 		Constructs a container with n elements. Each element is a copy of val. */
+	explicit vector(size_type __n, const value_type& __x = value_type(), 
+					const allocator_type& __a = allocator_type())
+	    : __base(__a)
+	{
+		if (__n > 0)
+		{
+			this->allocate(__n);
+			this->__construct_at_end(__n, __x);
+		}
+	}
 	// explicit vector(size_type __n)
 	// {
 	// 	if (__n > 0)
@@ -160,7 +174,59 @@ public:
 
 	~vector() {}
 
+	// max_size()
+	size_type max_size() const
+	{
+		return (std::min(this->__alloc_.max_size(), std::numeric_limits<size_type>::max() / 2));  // end() >= begin(), always
+	}
+
+private:
+	// allocate()
+	void allocate(size_type __n)
+	{
+		if (__n > this->max_size()) {
+			// this->__throw_length_error();
+			exit(1);
+		}
+		// this->__begin_ = this->__end_ = __alloc_traits::allocate(this->__alloc(), __n);
+		this->__begin_ = this->__end_ = this->__alloc_.allocate(__n);
+		this->__end_cap_ = this->__begin_ + __n;
+	}
+
+	// __construct_at_end()
+	void __construct_at_end(size_type __n)
+	{
+		do
+		{
+			this->__alloc_->construct(this->__end_);
+			++(this->__end_);
+			--__n;
+		} while (__n > 0);
+	}
+	void __construct_at_end(size_type __n, const_reference __x)
+	{
+		do
+		{
+			this->__alloc_.construct(this->__end_, __x);
+			++(this->__end_);
+			--__n;
+		} while (__n > 0);
+	}
+
 };
+
+// template <class _Tp, class _Allocator>
+// void
+// vector<_Tp, _Allocator>::allocate(size_type __n)
+// {
+//     if (__n > max_size()) {
+// 		// this->__throw_length_error();
+// 		exit(1);
+// 	}
+//     // this->__begin_ = this->__end_ = __alloc_traits::allocate(this->__alloc(), __n);
+// 	this->__begin_ = this->__end_ = this->__alloc_->allocate(__n);
+//     this->__end_cap_ = this->__begin_ + __n;
+// }
 
 };
 
