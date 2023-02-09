@@ -122,9 +122,8 @@ public:
     typedef typename __base::difference_type         difference_type;
     typedef typename __base::pointer                 pointer;
     typedef typename __base::const_pointer           const_pointer;
-
-    // typedef ft::__wrap_iter<pointer>                     iterator;
-    // typedef ft::__wrap_iter<const_pointer>               const_iterator;
+    typedef ft::__wrap_iter<pointer>                 iterator;
+    typedef ft::__wrap_iter<const_pointer>           const_iterator;
     // typedef ft::reverse_iterator<iterator>         reverse_iterator;
     // typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
@@ -257,6 +256,14 @@ public:
 
 
     // Iterators
+    // begin()
+    iterator               begin()          {return (__make_iter(this->__begin_));}
+    const_iterator         begin()   const  {return (__make_iter(this->__begin_));}
+    // end()
+    iterator               end()            {return (__make_iter(this->__end_));}
+    const_iterator         end()     const  {return (__make_iter(this->__end_));}
+    // rbegin()
+    // rend()
 
 
     // Capacity
@@ -461,6 +468,7 @@ private:
         }
     }
 
+    // __append()
     //  Default constructs __n objects starting at __end_
     //  throws if construction throws
     //  Postcondition:  size() == size() + __n
@@ -493,6 +501,9 @@ private:
         }
     }
 
+    // __make_iter()
+    iterator       __make_iter(pointer __p)                 {return iterator(__p);}
+    const_iterator __make_iter(const_pointer __p) const     {return const_iterator(__p);}
 
 };
 
