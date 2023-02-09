@@ -182,6 +182,16 @@ public:
     /*	(4) copy constructor
         Constructs a container with a copy of each of the elements in x, 
         in the same order. */
+    vector(const vector& __x, const allocator_type& __a = allocator_type())
+    	: __base(__a)
+    {
+    	size_type __n = __x.size();
+    	if (__n > 0)
+    	{
+    		allocate(__n);
+    		__construct_at_end(__x.__begin_, __x.__end_);
+    	}
+    }
     // vector(const vector& __x)
     // 	: __base(__alloc_traits::select_on_container_copy_construction(__x.__alloc()))
     // {
@@ -311,6 +321,22 @@ private:
             ++(this->__end_);
             --__n;
         } while (__n > 0);
+    }
+    template <class _ForwardIterator>
+        typename enable_if
+        <
+            __is_forward_iterator<_ForwardIterator>::value,
+            void
+        >::type
+        __construct_at_end(_ForwardIterator __first, _ForwardIterator __last)
+    {
+        // allocator_type& __a = this->__alloc();
+        for (; __first != __last; ++__first)
+        {
+            // __alloc_traits::construct(__a, _STD::__to_raw_pointer(this->__end_), *__first);
+            this->__alloc_.construct(this->__end_, *__first);
+            ++this->__end_;
+        }
     }
 
 
