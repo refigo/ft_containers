@@ -293,7 +293,9 @@ public:
 
 
     // Element access
-
+    // operator[]
+    reference       operator[](size_type __n) {return (this->__begin_[__n]);}
+    const_reference operator[](size_type __n) const {return (this->__begin_[__n]);}
 
     // Modifiers
     // assign()
