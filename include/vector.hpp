@@ -124,9 +124,8 @@ public:
     typedef typename __base::const_pointer           const_pointer;
     typedef ft::__wrap_iter<pointer>                 iterator;
     typedef ft::__wrap_iter<const_pointer>           const_iterator;
-    // typedef ft::reverse_iterator<iterator>         reverse_iterator;
-    // typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
-
+    typedef ft::reverse_iterator<iterator>           reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>     const_reverse_iterator;
 
     // (constructor)
     /*	(1) empty container constructor (default constructor)
@@ -263,7 +262,11 @@ public:
     iterator               end()            {return (__make_iter(this->__end_));}
     const_iterator         end()     const  {return (__make_iter(this->__end_));}
     // rbegin()
+    reverse_iterator       rbegin()         {return       reverse_iterator(end());}
+    const_reverse_iterator rbegin()  const  {return const_reverse_iterator(end());}
     // rend()
+    reverse_iterator       rend()           {return       reverse_iterator(begin());}
+    const_reverse_iterator rend()    const  {return const_reverse_iterator(begin());}
 
 
     // Capacity
