@@ -130,6 +130,213 @@ struct iterator
     typedef _Category  iterator_category;
 };
 
+
+// __wrap_iter
+
+// template <class _Iter> class __wrap_iter;
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator==(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator<(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator!=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator>(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator>=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// bool
+// operator<=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter1, class _Iter2>
+// typename __wrap_iter<_Iter1>::difference_type
+// operator-(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+
+// template <class _Iter>
+// __wrap_iter<_Iter>
+// operator+(typename __wrap_iter<_Iter>::difference_type, const __wrap_iter<_Iter>&);
+
+// template <class _I, class _O> _O copy(_I, _I, _O);
+// template <class _B1, class _B2> _B2 copy_backward(_B1, _B1, _B2);
+// template <class _I, class _O> _O move(_I, _I, _O);
+// template <class _B1, class _B2> _B2 move_backward(_B1, _B1, _B2);
+
+// template <class _Tp>
+// typename enable_if
+// <
+//     has_trivial_copy_assign<_Tp>::value,
+//     _Tp*
+// >::type
+// __unwrap_iter(__wrap_iter<_Tp*>);
+
+template <class _Iter>
+class __wrap_iter
+{
+public:
+    typedef _Iter                                                      iterator_type;
+    typedef typename iterator_traits<iterator_type>::iterator_category iterator_category;
+    typedef typename iterator_traits<iterator_type>::value_type        value_type;
+    typedef typename iterator_traits<iterator_type>::difference_type   difference_type;
+    typedef typename iterator_traits<iterator_type>::pointer           pointer;
+    typedef typename iterator_traits<iterator_type>::reference         reference;
+private:
+    iterator_type __i;
+public:
+    __wrap_iter() {}
+    template <class _Up> __wrap_iter(const __wrap_iter<_Up>& __u,
+        typename enable_if<__has_iterator_category_convertible_to<_Up, iterator_category>::value>::type* = 0)
+        : __i(__u.base()) {}
+    reference operator*() const {return *__i;}
+    pointer  operator->() const {return &(operator*());}
+    __wrap_iter& operator++() {++__i; return *this;}
+    __wrap_iter  operator++(int)
+        {__wrap_iter __tmp(*this); ++__i; return __tmp;}
+    __wrap_iter& operator--() {--__i; return *this;}
+    __wrap_iter  operator--(int)
+        {__wrap_iter __tmp(*this); --__i; return __tmp;}
+    __wrap_iter  operator+ (difference_type __n) const
+        {return __wrap_iter(__i + __n);}
+    __wrap_iter& operator+=(difference_type __n)
+        {__i += __n; return *this;}
+    __wrap_iter  operator- (difference_type __n) const
+        {return __wrap_iter(__i - __n);}
+    __wrap_iter& operator-=(difference_type __n)
+        {__i -= __n; return *this;}
+    reference        operator[](difference_type __n) const
+        {return __i[__n];}
+
+    iterator_type base() const {return __i;}
+
+private:
+    __wrap_iter(iterator_type __x) : __i(__x) {}
+
+    // template <class _Up> friend class __wrap_iter;
+    // template <class _CharT, class _Traits, class _Alloc> friend class basic_string;
+    // template <class _Tp, class _Alloc> friend class vector;
+
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator==(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator<(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator!=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator>(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator>=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // bool
+    // operator<=(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1, class _Iter2>
+    // friend
+    // typename __wrap_iter<_Iter1>::difference_type
+    // operator-(const __wrap_iter<_Iter1>&, const __wrap_iter<_Iter2>&);
+    
+    // template <class _Iter1>
+    // friend
+    // __wrap_iter<_Iter1>
+    // operator+(typename __wrap_iter<_Iter1>::difference_type, const __wrap_iter<_Iter1>&);
+
+    // template <class _I, class _O> friend _O copy(_I, _I, _O);
+    // template <class _B1, class _B2> friend _B2 copy_backward(_B1, _B1, _B2);
+    // template <class _I, class _O> friend _O move(_I, _I, _O);
+    // template <class _B1, class _B2> friend _B2 move_backward(_B1, _B1, _B2);
+
+    // template <class _Tp>
+    // friend
+    // typename enable_if
+    // <
+    //     has_trivial_copy_assign<_Tp>::value,
+    //     _Tp*
+    // >::type
+    // __unwrap_iter(__wrap_iter<_Tp*>);
+};
+
+template <class _Iter1, class _Iter2>
+bool
+operator==(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() == __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+bool
+operator<(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() < __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+bool
+operator!=(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() != __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+bool
+operator>(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() > __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+bool
+operator>=(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() >= __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+bool
+operator<=(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() <= __y.base();
+}
+
+template <class _Iter1, class _Iter2>
+typename __wrap_iter<_Iter1>::difference_type
+operator-(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y)
+{
+    return __x.base() - __y.base();
+}
+
+template <class _Iter>
+__wrap_iter<_Iter>
+operator+(typename __wrap_iter<_Iter>::difference_type __n,
+          const __wrap_iter<_Iter>& __x)
+{
+    return __wrap_iter<_Iter>(__x.base() + __n);
+}
+
 };
 
 #endif /* MGO_ITERATOR_ */
