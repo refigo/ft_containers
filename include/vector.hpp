@@ -267,6 +267,8 @@ public:
     }
     // capacity()
     size_type capacity() const {return (__base::capacity());}
+    // empty()
+    bool empty() const {return (this->__begin_ == this->__end_);}
     // reserve()
     void reserve(size_type __n)
     {
@@ -391,7 +393,7 @@ private:
     //         __swap_out_circular_buffer(__v);
     //     }
     // }
-    
+
     //  Default constructs __n objects starting at __end_
     //  throws if construction throws
     //  Postcondition:  size() == size() + __n
