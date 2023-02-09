@@ -332,7 +332,11 @@ public:
         return (this->__begin_[__n]);
     }
     // front()
+    reference       front()       {return *(this->__begin_);}
+    const_reference front() const {return *(this->__begin_);}
     // back()
+    reference       back()        {return *(this->__end_ - 1);}
+    const_reference back()  const {return *(this->__end_ - 1);}
 
     // Modifiers
     // assign()
