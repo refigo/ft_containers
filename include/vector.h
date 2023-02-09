@@ -66,17 +66,29 @@ protected:
     {
         if (__begin_ != 0)
         {
-            // clear();
-            // __alloc_traits::deallocate(__alloc(), __begin_, capacity());
+            this->clear();
+            this->__alloc_.deallocate(__begin_, this->capacity());
         }
     }
 
     //clear()
+    void clear()
+    {
+        __destruct_at_end(__begin_);
+    }
     //capacity()
     size_type capacity() const
     {
         return (static_cast<size_type>(this->__end_cap_ - this->__begin_));
     }
+
+    // __destruct_at_end
+    void __destruct_at_end(const_pointer __new_last)
+    {
+        while (__new_last < __end_)
+            this->__alloc_.destroy(const_cast<pointer>(--__end_));
+    }
+
 };
 
 template <class _Tp, class _Allocator = std::allocator<_Tp> >
@@ -265,6 +277,7 @@ public:
 
 
     // Modifiers
+    // assign()
     // push_back()
     void push_back(const_reference __x)
     {
@@ -276,9 +289,15 @@ public:
         this->__alloc_.construct(this->__end_, __x);
         ++(this->__end_);
     }
-
+    // pop_back()
+    // insert()
+    // erase()
+    // swap()
+    // clear()
+    void clear() {__base::clear();}
 
     // Allocator
+    // get_allocator()
 
 
 private:
@@ -344,6 +363,8 @@ private:
 
 
 // Non-member function overloads
+// relational operators()
+// swap()
 
 
 };
