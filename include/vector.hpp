@@ -1,5 +1,5 @@
-#ifndef MGO_VECTOR_H_
-#define MGO_VECTOR_H_
+#ifndef MGO_VECTOR_HPP_
+#define MGO_VECTOR_HPP_
 
 #include "type_traits.hpp"
 #include "iterator.hpp"
@@ -369,4 +369,4 @@ private:
 
 };
 
-#endif /* MGO_VECTOR_H_ */
+#endif /* MGO_VECTOR_HPP_ */
