@@ -318,6 +318,21 @@ public:
     // operator[]
     reference       operator[](size_type __n) {return (this->__begin_[__n]);}
     const_reference operator[](size_type __n) const {return (this->__begin_[__n]);}
+    // at()
+    reference       at(size_type __n)
+    {
+        if (__n >= size())
+            this->__throw_out_of_range();
+        return (this->__begin_[__n]);
+    }
+    const_reference at(size_type __n) const
+    {
+        if (__n >= size())
+            this->__throw_out_of_range();
+        return (this->__begin_[__n]);
+    }
+    // front()
+    // back()
 
     // Modifiers
     // assign()
