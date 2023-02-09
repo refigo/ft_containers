@@ -390,7 +390,7 @@ public:
 
     // Allocator
     // get_allocator()
-
+    allocator_type get_allocator() const {return (this->__alloc_);}
 
 private:
     // __allocate()
