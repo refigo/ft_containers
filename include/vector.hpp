@@ -52,19 +52,21 @@ protected:
     pointer											__end_cap_;
     allocator_type									__alloc_;
 
+    // (constructor)
     // __vector_base()
     // 	: __begin_(0),
     // 	__end_(0),
     // 	__end_cap_(0),
     // 	__alloc_(allocator_type()) {}
     __vector_base(const allocator_type& __a)
-        : __begin_(0),
-        __end_(0),
-        __end_cap_(0),
+        : __begin_(NULL),
+        __end_(NULL),
+        __end_cap_(NULL),
         __alloc_(__a) {}
+    // (destructor)
     ~__vector_base()
     {
-        if (__begin_ != 0)
+        if (__begin_ != NULL)
         {
             this->clear();
             this->__alloc_.deallocate(__begin_, this->capacity());
@@ -82,11 +84,23 @@ protected:
         return (static_cast<size_type>(this->__end_cap_ - this->__begin_));
     }
 
-    // __destruct_at_end
+    // __destruct_at_end()
     void __destruct_at_end(const_pointer __new_last)
     {
         while (__new_last < __end_)
             this->__alloc_.destroy(const_cast<pointer>(--__end_));
+    }
+
+    // __copy_assign_alloc()
+    void __copy_assign_alloc(const __vector_base& __c)
+    {
+        if (__alloc_ != __c.__alloc_)
+        {
+            this->clear();
+            __alloc_.deallocate(__begin_, this->capacity());
+            __begin_ = __end_ = __end_cap_ = NULL;
+        }
+        __alloc_ = __c.__alloc_;
     }
 
 };
@@ -130,8 +144,8 @@ public:
     {
         if (__n > 0)
         {
-            this->allocate(__n);
-            this->__construct_at_end(__n, __x);
+            __allocate(__n);
+            __construct_at_end(__n, __x);
         }
     }
     // explicit vector(size_type __n)
@@ -200,7 +214,7 @@ public:
     	size_type __n = __x.size();
     	if (__n > 0)
     	{
-    		allocate(__n);
+    		__allocate(__n);
     		__construct_at_end(__x.__begin_, __x.__end_);
     	}
     }
@@ -231,7 +245,15 @@ public:
 
 
     // operator=
-    // vector& operator=(const vector& __x);
+    vector& operator=(const vector& __x)
+    {
+        if (this != &__x)
+        {
+            __base::__copy_assign_alloc(__x);
+            assign(__x.__begin_, __x.__end_);
+        }
+        return *this;
+    }
 
 
     // Iterators
@@ -261,9 +283,9 @@ public:
     {
         size_type __cs = size();
         if (__cs < __sz)
-            this->__append(__sz - __cs, __x);
+            __append(__sz - __cs, __x);
         else if (__cs > __sz)
-            this->__destruct_at_end(this->__begin_ + __sz);
+            __destruct_at_end(this->__begin_ + __sz);
     }
     // capacity()
     size_type capacity() const {return (__base::capacity());}
@@ -299,6 +321,36 @@ public:
 
     // Modifiers
     // assign()
+    template <class _InputIterator>
+        typename enable_if
+        <
+             __is_input_iterator  <_InputIterator>::value,
+            void
+        >::type
+        assign(_InputIterator __first, _InputIterator __last)
+    {
+        this->clear();
+        for (; __first != __last; ++__first)
+            this->push_back(*__first);
+    }
+    void assign(size_type __n, const_reference __u)
+    {
+        if (__n <= this->capacity())
+        {
+            size_type __s = this->size();
+            std::fill_n(this->__begin_, std::min(__n, __s), __u);
+            if (__n > __s)
+                __construct_at_end(__n - __s, __u);
+            else
+                __destruct_at_end(this->__begin_ + __n);
+        }
+        else
+        {
+            __deallocate();
+            __allocate(__recommend(static_cast<size_type>(__n)));
+            __construct_at_end(__n, __u);
+        }
+    }
     // push_back()
     void push_back(const_reference __x)
     {
@@ -322,13 +374,24 @@ public:
 
 
 private:
-    // allocate()
-    void allocate(size_type __n)
+    // __allocate()
+    void __allocate(size_type __n)
     {
         if (__n > this->max_size())
             this->__throw_length_error();
         this->__begin_ = this->__end_ = this->__alloc_.allocate(__n);
         this->__end_cap_ = this->__begin_ + __n;
+    }
+
+    // __deallocate()
+    void __deallocate()
+    {
+        if (this->__begin_ != NULL)
+        {
+            this->clear();
+            this->__alloc_.deallocate(this->__begin_, this->capacity());
+            this->__begin_ = this->__end_ = this->__end_cap_ = NULL;
+        }
     }
 
     // __recommend()
@@ -403,11 +466,11 @@ private:
     void __append(size_type __n, const_reference __x)
     {
         if (static_cast<size_type>(this->__end_cap_ - this->__end_) >= __n)
-            this->__construct_at_end(__n, __x);
+            __construct_at_end(__n, __x);
         else
         {
-            this->reserve(this->__recommend(this->size() + __n));
-            this->__construct_at_end(__n, __x); // recommend에서 반환한 값 만큼으로 제한?
+            this->reserve(__recommend(this->size() + __n));
+            __construct_at_end(__n, __x); // recommend에서 반환한 값 만큼으로 제한?
         }
     }
 
