@@ -398,6 +398,25 @@ public:
         __destruct_at_end(this->__end_ - 1);
     }
     // insert()
+    iterator insert(const_iterator __position, const_reference __x);
+    iterator insert(const_iterator __position, size_type __n, const_reference __x);
+    template <class _InputIterator>
+        typename enable_if
+        <
+             __is_input_iterator  <_InputIterator>::value &&
+            !__is_forward_iterator<_InputIterator>::value,
+            iterator
+        >::type
+        insert(const_iterator __position, _InputIterator __first, _InputIterator __last);
+    template <class _ForwardIterator>
+        typename enable_if
+        <
+            __is_forward_iterator<_ForwardIterator>::value,
+            iterator
+        >::type
+        insert(const_iterator __position, _ForwardIterator __first, _ForwardIterator __last);
+
+
     // erase()
     // swap()
     // clear()
