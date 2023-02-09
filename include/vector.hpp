@@ -248,6 +248,23 @@ public:
     {
         return (std::min(this->__alloc_.max_size(), std::numeric_limits<size_type>::max() / 2));  // end() >= begin(), always
     }
+    // resize()
+    // void resize(size_type __sz)
+    // {
+    //     size_type __cs = size();
+    //     if (__cs < __sz)
+    //         this->__append(__sz - __cs);
+    //     else if (__cs > __sz)
+    //         this->__destruct_at_end(this->__begin_ + __sz);
+    // }
+    void resize(size_type __sz, value_type __x = value_type())
+    {
+        size_type __cs = size();
+        if (__cs < __sz)
+            this->__append(__sz - __cs, __x);
+        else if (__cs > __sz)
+            this->__destruct_at_end(this->__begin_ + __sz);
+    }
     // capacity()
     size_type capacity() const {return (__base::capacity());}
     // reserve()
@@ -355,6 +372,38 @@ private:
             // __alloc_traits::construct(__a, _STD::__to_raw_pointer(this->__end_), *__first);
             this->__alloc_.construct(this->__end_, *__first);
             ++this->__end_;
+        }
+    }
+
+    //  Default constructs __n objects starting at __end_
+    //  throws if construction throws
+    //  Postcondition:  size() == size() + __n
+    //  Exception safety: strong but assumes move ctor doesn't throw (copy ctor can)
+    // void __append(size_type __n)
+    // {
+    //     if (static_cast<size_type>(this->__end_cap() - this->__end_) >= __n)
+    //         this->__construct_at_end(__n);
+    //     else
+    //     {
+    //         allocator_type& __a = this->__alloc();
+    //         __split_buffer<value_type, allocator_type&> __v(__recommend(size() + __n), size(), __a);
+    //         __v.__construct_at_end(__n);
+    //         __swap_out_circular_buffer(__v);
+    //     }
+    // }
+    
+    //  Default constructs __n objects starting at __end_
+    //  throws if construction throws
+    //  Postcondition:  size() == size() + __n
+    //  Exception safety: strong but assumes move ctor doesn't throw (copy ctor can)
+    void __append(size_type __n, const_reference __x)
+    {
+        if (static_cast<size_type>(this->__end_cap_ - this->__end_) >= __n)
+            this->__construct_at_end(__n, __x);
+        else
+        {
+            this->reserve(this->__recommend(this->size() + __n));
+            this->__construct_at_end(__n, __x); // recommend에서 반환한 값 만큼으로 제한?
         }
     }
 
