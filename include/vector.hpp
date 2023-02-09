@@ -348,6 +348,7 @@ public:
     reference       back()        {return *(this->__end_ - 1);}
     const_reference back()  const {return *(this->__end_ - 1);}
 
+
     // Modifiers
     // assign()
     template <class _InputIterator>
@@ -392,11 +393,16 @@ public:
         ++(this->__end_);
     }
     // pop_back()
+    void pop_back()
+    {
+        __destruct_at_end(this->__end_ - 1);
+    }
     // insert()
     // erase()
     // swap()
     // clear()
     void clear() {__base::clear();}
+
 
     // Allocator
     // get_allocator()
