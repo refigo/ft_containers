@@ -9,6 +9,8 @@
 #include <stdexcept> // for throwing error in __vector_base_common
 #include <algorithm> // min(), max()
 
+#include <iostream>
+
 namespace ft {
 
 template <bool>
@@ -315,12 +317,47 @@ public:
             //                     move_iterator<pointer>(this->__end_));
             // this->clear();
             // __swap_out_circular_buffer(__v);
+
+
+            // TODO: 여기선 기존 데이터의 소멸자가 호출이 안 될 듯... -> 테스트 해보는데 릭이 안나온다...
             pointer __tmp_begin = this->__alloc_.allocate(__n);
             std::uninitialized_copy(this->__begin_, this->__end_, __tmp_begin); // TODO: consider...
-            this->__end_ = __tmp_begin + this->size();
+            pointer __tmp_end = __tmp_begin + size();
             this->__alloc_.deallocate(this->__begin_, this->capacity());
             this->__begin_ = __tmp_begin;
+            this->__end_ = __tmp_end;
             this->__end_cap_ = this->__begin_ + __n;
+
+            // another reallocating logic
+            // {
+            //     vector<_Tp, _Allocator> __tmp_vec(__n);
+            //     std::uninitialized_copy(this->__begin_, this->__end_, __tmp_vec.__begin_);
+            //     __tmp_vec.__end_ = __tmp_vec.__begin_ + size();
+
+            //     // swap_data
+            //     // this->__swap_data(tmp);
+            //     {
+            //         pointer __tmp_begin_(this->__begin_);
+            //         pointer __tmp_end_(this->__end_);
+            //         pointer __tmp_end_cap_(this->__end_cap_);
+            //         allocator_type __tmp_alloc_(this->__alloc_);
+            //         // copy_data
+            //         // this->__copy_data(_other);
+            //         {
+            //             this->__begin_ = __tmp_vec.__begin_;
+            //             this->__end_ = __tmp_vec.__end_;
+            //             this->__end_cap_ = __tmp_vec.__end_cap_;
+            //         }
+            //         this->__alloc_ = __tmp_vec.__alloc_;
+            //         // __tmp_vec.__copy_data(__tmp_begin_, __tmp_end_, __tmp_end_cap_);
+            //         {
+            //             __tmp_vec.__begin_ = __tmp_begin_;
+            //             __tmp_vec.__end_ = __tmp_end_;
+            //             __tmp_vec.__end_cap_ = __tmp_end_cap_;
+            //         }
+            //         __tmp_vec.__alloc_ = __tmp_alloc_;
+            //     }
+            // }
         }
     }
 
@@ -401,12 +438,18 @@ public:
     // insert()
     iterator insert(const_iterator __position, const_reference __x)
     {
-        if (this->__end == this->__end_cap_)
+        difference_type __off = __position - begin();
+        if (this->__end_ >= this->__end_cap_)
             reserve(__recommend(size() + 1));
-        pointer __p = this->__begin_ + (__position - begin());
+        pointer __p = this->__begin_ + __off;
+        // std::cout << "this->__begin_: " << this->__begin_ << std::endl;
+        // std::cout << "__p: " << __p << std::endl;
         pointer __moving_from_end = this->__end_;
+        // std::cout << "__moving_from_end: " << __moving_from_end << std::endl;
         for (; __moving_from_end != __p; --__moving_from_end)
         {
+            // std::cout << "__moving_from_end: " << __moving_from_end << std::endl;
+            // std::cout << "*__moving_from_end: " << *__moving_from_end << std::endl;
             this->__alloc_.construct(__moving_from_end, *(__moving_from_end - 1));
             this->__alloc_.destroy(__moving_from_end - 1);
         }
@@ -416,10 +459,11 @@ public:
     }
     void insert(const_iterator __position, size_type __n, const_reference __x)
     {
-        if (this->__end == this->__end_cap_)
+        difference_type __off = __position - begin();
+        if (this->__end_ == this->__end_cap_)
             reserve(__recommend(size() + __n));
-        pointer __p = this->__begin_ + (__position - begin());
-        pointer __moving_from_new_end = this->__end_ + __n;
+        pointer __p = this->__begin_ + __off;
+        pointer __moving_from_new_end = this->__end_ + __n - 1;
         for (; __moving_from_new_end != __p; --__moving_from_new_end)
         {
             this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n - 1));
@@ -428,8 +472,59 @@ public:
         // std::uninitialized_fill(__p, __p + i, __x); // TODO: test
         for (size_type i(0); i < __n; ++i)
             this->__alloc_.construct(__p + i, __x);   
-        this->__end_ + __n;
+        this->__end_ += __n;
         return ;
+    }
+    template <class _InputIterator>
+    void insert(const_iterator __position, _InputIterator __first, 
+        typename enable_if
+        <
+             __is_input_iterator  <_InputIterator>::value,
+            _InputIterator
+        >::type __last)
+    {
+        for (; __first != __last; ++__first, ++__position)
+        {
+            insert(__position, *__first);
+        }
+        // difference_type __off = __position - begin();
+        // pointer __p = this->__begin_ + __off;
+        // // allocator_type& __a = this->__alloc();
+        // // pointer __old_last = this->__end_;
+        // for (; this->__end_ != this->__end_cap_ && __first != __last; ++__first)
+        // {
+        //     this->__alloc_.construct(this->__end_, *__first);
+        //     // __alloc_traits::construct(__a, _STD::__to_raw_pointer(this->__end_),
+        //     //                         *__first);
+        //     ++this->__end_;
+        // }
+        
+    //     __split_buffer<value_type, allocator_type&> __v(__a);
+    //     if (__first != __last)
+    //     {
+    // #ifndef _LIBCPP_NO_EXCEPTIONS
+    //         try
+    //         {
+    // #endif
+    //             __v.__construct_at_end(__first, __last);
+    //             difference_type __old_size = __old_last - this->__begin_;
+    //             difference_type __old_p = __p - this->__begin_;
+    //             reserve(__recommend(size() + __v.size()));
+    //             __p = this->__begin_ + __old_p;
+    //             __old_last = this->__begin_ + __old_size;
+    // #ifndef _LIBCPP_NO_EXCEPTIONS
+    //         }
+    //         catch (...)
+    //         {
+    //             erase(__make_iter(__old_last), end());
+    //             throw;
+    //         }
+    // #endif
+    //     }
+    //     __p = _STD::rotate(__p, __old_last, this->__end_);
+    //     insert(__make_iter(__p), move_iterator<iterator>(__v.begin()),
+    //                                     move_iterator<iterator>(__v.end()));
+        // return begin() + __off;
     }
     // template <class _InputIterator>
     //     typename enable_if
