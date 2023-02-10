@@ -179,7 +179,8 @@ public:
     template <class _InputIterator>
         vector(_InputIterator __first, _InputIterator __last, 
                const allocator_type& __a = allocator_type(),
-               typename enable_if<__is_input_iterator<_InputIterator>::value>::type* = 0)
+            //    typename enable_if<__is_input_iterator<_InputIterator>::value>::type* = 0)
+               typename enable_if<!is_integral<_InputIterator>::value>::type* = 0)
         : __base(__a)
     {
         for (; __first != __last; ++__first)
@@ -400,39 +401,21 @@ public:
 
 
     // insert()
-    // iterator insert(const_iterator __position, const_reference __x)
-    // {
-    //     pointer __p = this->__begin_ + (__position - begin());
-    //     if (this->__end_ < this->__end_cap_)
-    //     {
-    //         if (__p == this->__end_)
-    //         {
-    //             this->__alloc_.construct(this->__end_, __x);
-    //             ++this->__end_;
-    //         }
-    //         else
-    //         {
-    //             // position이 요소 중간에 있는 경우
-    //             // position 바로 다음부터의 요소들을 1칸씩 뒤로 이동시킨다.
-    //             // position에 새로운 요소를 저장한다.
-    //             __move_range(__p, this->__end_, __p + 1);
-    //             const_pointer __xr = pointer_traits<const_pointer>::pointer_to(__x);
-    //             if (__p <= __xr && __xr < this->__end_)
-    //                 ++__xr;
-    //             *__p = *__xr;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         // 메모리 공간을 크기 1만큼 더 크게 할당 한다.
-            
-    //         allocator_type& __a = this->__alloc();
-    //         __split_buffer<value_type, allocator_type&> __v(__recommend(size() + 1), __p - this->__begin_, __a);
-    //         __v.push_back(__x);
-    //         __p = __swap_out_circular_buffer(__v, __p);
-    //     }
-    //     return __make_iter(__p);
-    // }
+    iterator insert(const_iterator __position, const_reference __x)
+    {
+        if (this->__end == this->__end_cap_)
+            reserve(__recommend(size() + 1));
+        pointer __p = this->__begin_ + (__position - begin());
+        pointer __moving_from_end = this->__end_;
+        for (; __moving_from_end != __p; --__moving_from_end)
+        {
+            this->__alloc_.construct(__moving_from_end, *(__moving_from_end - 1));
+            this->__alloc_.destroy(__moving_from_end - 1);
+        }
+        this->__alloc_.construct(__p, __x);
+        ++(this->__end_);
+        return (__make_iter(__p));
+    }
     // iterator insert(const_iterator __position, size_type __n, const_reference __x);
     // template <class _InputIterator>
     //     typename enable_if
