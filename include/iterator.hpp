@@ -295,6 +295,7 @@ public:
 private:
     iterator_type __i;
 public:
+    __wrap_iter(iterator_type __x) : __i(__x) {}
     __wrap_iter() {}
     template <class _Up> __wrap_iter(const __wrap_iter<_Up>& __u,
         typename enable_if<__has_iterator_category_convertible_to<_Up, iterator_category>::value>::type* = 0)
@@ -321,7 +322,7 @@ public:
     iterator_type base() const {return __i;}
 
 private:
-    __wrap_iter(iterator_type __x) : __i(__x) {}
+    // __wrap_iter(iterator_type __x) : __i(__x) {}
 
     // template <class _Up> friend class __wrap_iter;
     // template <class _CharT, class _Traits, class _Alloc> friend class basic_string;
