@@ -398,8 +398,6 @@ public:
     {
         __destruct_at_end(this->__end_ - 1);
     }
-
-
     // insert()
     iterator insert(const_iterator __position, const_reference __x)
     {
@@ -416,7 +414,23 @@ public:
         ++(this->__end_);
         return (__make_iter(__p));
     }
-    // iterator insert(const_iterator __position, size_type __n, const_reference __x);
+    void insert(const_iterator __position, size_type __n, const_reference __x)
+    {
+        if (this->__end == this->__end_cap_)
+            reserve(__recommend(size() + __n));
+        pointer __p = this->__begin_ + (__position - begin());
+        pointer __moving_from_new_end = this->__end_ + __n;
+        for (; __moving_from_new_end != __p; --__moving_from_new_end)
+        {
+            this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n - 1));
+            this->__alloc_.destroy(__moving_from_new_end - __n - 1);
+        }
+        // std::uninitialized_fill(__p, __p + i, __x); // TODO: test
+        for (size_type i(0); i < __n; ++i)
+            this->__alloc_.construct(__p + i, __x);   
+        this->__end_ + __n;
+        return ;
+    }
     // template <class _InputIterator>
     //     typename enable_if
     //     <
