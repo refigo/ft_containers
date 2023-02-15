@@ -67,6 +67,15 @@ template <>          struct __is_integral_mgo<unsigned long long> : public true_
 
 template <class _Tp> struct is_integral : public __is_integral_mgo<typename remove_cv<_Tp>::type> {};
 
+// add_lvalue_reference
+
+template <class _Tp> struct add_lvalue_reference                      {typedef _Tp& type;};
+template <class _Tp> struct add_lvalue_reference<_Tp&>                {typedef _Tp& type;};  // for older compiler
+template <>          struct add_lvalue_reference<void>                {typedef void type;};
+template <>          struct add_lvalue_reference<const void>          {typedef const void type;};
+template <>          struct add_lvalue_reference<volatile void>       {typedef volatile void type;};
+template <>          struct add_lvalue_reference<const volatile void> {typedef const volatile void type;};
+
 };
 
 #endif /* MGO_TYPE_TRAITS_ */
