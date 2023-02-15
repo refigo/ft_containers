@@ -98,13 +98,12 @@ protected:
     {
         if (__alloc_ != __c.__alloc_)
         {
-            this->clear();
+            clear();
             __alloc_.deallocate(__begin_, this->capacity());
             __begin_ = __end_ = __end_cap_ = NULL;
         }
         __alloc_ = __c.__alloc_;
     }
-
 };
 
 template <class _Tp, class _Allocator = std::allocator<_Tp> >
@@ -510,22 +509,27 @@ public:
     //     >::type
     //     insert(const_iterator __position, _ForwardIterator __first, _ForwardIterator __last);
 
-
     // erase()
-    // iterator erase(iterator __position)
-    // {
-    //     pointer __p = const_cast<pointer>(&*__position);
-    //     iterator __r = __make_iter(__p);
-    //     this->__destruct_at_end(_STD::move(__p + 1, this->__end_, __p)); // move가 __p를 맨 뒤로 보내는 역할을 하는 것 같다.
-    //     return __r;
-    // }
-    // iterator erase(iterator __first, iterator __last)
-    // {
-    //     pointer __p = this->__begin_ + (__first - begin());
-    //     iterator __r = __make_iter(__p);
-    //     this->__destruct_at_end(_STD::move(__p + (__last - __first), this->__end_, __p));
-    //     return __r;
-    // }
+    iterator erase(iterator __position)
+    {
+        pointer __p = const_cast<pointer>(&*__position);
+        iterator __r = __make_iter(__p);
+        this->__alloc_.destroy(__p);
+        std::uninitialized_copy(__position + 1, end(), __position); // REVIEW
+        --(this->__end_);
+        return __r;
+    }
+    iterator erase(iterator __first, iterator __last)
+    {
+        pointer __p = this->__begin_ + (__first - begin());
+        iterator __r = __make_iter(__p);
+        size_type __n = __last - __first;
+        for (size_type __i(0); __i < __n; ++__i, ++__p)
+            this->__alloc_.destroy(__p);
+        std::uninitialized_copy(__last, end(), __first); // REVIEW
+        this->__end_ -= __n;
+        return __r;
+    }
     // swap()
     // void swap(vector&)
     // {
