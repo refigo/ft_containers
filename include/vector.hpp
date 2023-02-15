@@ -464,7 +464,7 @@ public:
             this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
             this->__alloc_.destroy(__moving_from_new_end - __n);
         }
-        // std::uninitialized_fill(__p, __p + i, __x); // TODO: test
+        // std::uninitialized_fill(__p, __p + __n, __x); // REVIEW: check uninitialized_fill function. It is work.
         for (size_type i(0); i < __n; ++i)
             this->__alloc_.construct(__p + i, __x);
         this->__end_ += __n;
@@ -478,24 +478,17 @@ public:
             _InputIterator
         >::type __last) // range (3)
     {
-        /* 로직 흐름 */
-        // postion을 이용해서 begin 간의 사이인 off 저장
         difference_type __off = __position - begin();
-        // first부터 last 까지 길이 파악
         size_type __n = __last - __first;
-        // 공간이 부족할 경우에 메모리 확장 (reserve)
         if (this->__end_ + __n >= this->__end_)
             reserve(__recommend(size() + __n));
-        // off 값을 이용해서 pointer 지정
         pointer __p = this->__begin_ + __off;
-        // off 만큼 공간 확보
         pointer __moving_from_new_end = this->__end_ + __n - 1;
         for (; __moving_from_new_end != __p + __n - 1; --__moving_from_new_end)
         {
             this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
             this->__alloc_.destroy(__moving_from_new_end - __n);
         }
-        // 차례대로 데이터 저장
         for (; __first != __last; ++__first, ++__p)
             this->__alloc_.construct(__p, *__first);
         this->__end_ += __n;
