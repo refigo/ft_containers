@@ -298,7 +298,7 @@ public:
         if (__cs < __sz)
             __append(__sz - __cs, __x);
         else if (__cs > __sz)
-            __destruct_at_end(this->__begin_ + __sz);
+            this->__destruct_at_end(this->__begin_ + __sz);
     }
     // capacity()
     size_type capacity() const {return (__base::capacity());}
@@ -436,20 +436,15 @@ public:
         __destruct_at_end(this->__end_ - 1);
     }
     // insert()
-    iterator insert(const_iterator __position, const_reference __x)
+    iterator insert(const_iterator __position, const_reference __x) // single element (1)
     {
         difference_type __off = __position - begin();
         if (this->__end_ >= this->__end_cap_)
             reserve(__recommend(size() + 1));
         pointer __p = this->__begin_ + __off;
-        // std::cout << "this->__begin_: " << this->__begin_ << std::endl;
-        // std::cout << "__p: " << __p << std::endl;
         pointer __moving_from_end = this->__end_;
-        // std::cout << "__moving_from_end: " << __moving_from_end << std::endl;
         for (; __moving_from_end != __p; --__moving_from_end)
         {
-            // std::cout << "__moving_from_end: " << __moving_from_end << std::endl;
-            // std::cout << "*__moving_from_end: " << *__moving_from_end << std::endl;
             this->__alloc_.construct(__moving_from_end, *(__moving_from_end - 1));
             this->__alloc_.destroy(__moving_from_end - 1);
         }
@@ -457,21 +452,21 @@ public:
         ++(this->__end_);
         return (__make_iter(__p));
     }
-    void insert(const_iterator __position, size_type __n, const_reference __x)
+    void insert(const_iterator __position, size_type __n, const_reference __x) // fill (1)
     {
         difference_type __off = __position - begin();
-        if (this->__end_ == this->__end_cap_)
+        if (this->__end_ + __n >= this->__end_cap_) // TODO: check when end+n is bigger than end_cap
             reserve(__recommend(size() + __n));
         pointer __p = this->__begin_ + __off;
         pointer __moving_from_new_end = this->__end_ + __n - 1;
-        for (; __moving_from_new_end != __p; --__moving_from_new_end)
+        for (; __moving_from_new_end != __p + __n - 1; --__moving_from_new_end)
         {
-            this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n - 1));
-            this->__alloc_.destroy(__moving_from_new_end - __n - 1);
+            this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
+            this->__alloc_.destroy(__moving_from_new_end - __n);
         }
         // std::uninitialized_fill(__p, __p + i, __x); // TODO: test
         for (size_type i(0); i < __n; ++i)
-            this->__alloc_.construct(__p + i, __x);   
+            this->__alloc_.construct(__p + i, __x);
         this->__end_ += __n;
         return ;
     }
@@ -481,50 +476,30 @@ public:
         <
              __is_input_iterator  <_InputIterator>::value,
             _InputIterator
-        >::type __last)
+        >::type __last) // range (3)
     {
-        for (; __first != __last; ++__first, ++__position)
+        /* 로직 흐름 */
+        // postion을 이용해서 begin 간의 사이인 off 저장
+        difference_type __off = __position - begin();
+        // first부터 last 까지 길이 파악
+        size_type __n = __last - __first;
+        // 공간이 부족할 경우에 메모리 확장 (reserve)
+        if (this->__end_ + __n >= this->__end_)
+            reserve(__recommend(size() + __n));
+        // off 값을 이용해서 pointer 지정
+        pointer __p = this->__begin_ + __off;
+        // off 만큼 공간 확보
+        pointer __moving_from_new_end = this->__end_ + __n - 1;
+        for (; __moving_from_new_end != __p + __n - 1; --__moving_from_new_end)
         {
-            insert(__position, *__first);
+            this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
+            this->__alloc_.destroy(__moving_from_new_end - __n);
         }
-        // difference_type __off = __position - begin();
-        // pointer __p = this->__begin_ + __off;
-        // // allocator_type& __a = this->__alloc();
-        // // pointer __old_last = this->__end_;
-        // for (; this->__end_ != this->__end_cap_ && __first != __last; ++__first)
-        // {
-        //     this->__alloc_.construct(this->__end_, *__first);
-        //     // __alloc_traits::construct(__a, _STD::__to_raw_pointer(this->__end_),
-        //     //                         *__first);
-        //     ++this->__end_;
-        // }
-        
-    //     __split_buffer<value_type, allocator_type&> __v(__a);
-    //     if (__first != __last)
-    //     {
-    // #ifndef _LIBCPP_NO_EXCEPTIONS
-    //         try
-    //         {
-    // #endif
-    //             __v.__construct_at_end(__first, __last);
-    //             difference_type __old_size = __old_last - this->__begin_;
-    //             difference_type __old_p = __p - this->__begin_;
-    //             reserve(__recommend(size() + __v.size()));
-    //             __p = this->__begin_ + __old_p;
-    //             __old_last = this->__begin_ + __old_size;
-    // #ifndef _LIBCPP_NO_EXCEPTIONS
-    //         }
-    //         catch (...)
-    //         {
-    //             erase(__make_iter(__old_last), end());
-    //             throw;
-    //         }
-    // #endif
-    //     }
-    //     __p = _STD::rotate(__p, __old_last, this->__end_);
-    //     insert(__make_iter(__p), move_iterator<iterator>(__v.begin()),
-    //                                     move_iterator<iterator>(__v.end()));
-        // return begin() + __off;
+        // 차례대로 데이터 저장
+        for (; __first != __last; ++__first, ++__p)
+            this->__alloc_.construct(__p, *__first);
+        this->__end_ += __n;
+        return ;
     }
     // template <class _InputIterator>
     //     typename enable_if
