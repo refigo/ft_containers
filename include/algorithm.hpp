@@ -122,6 +122,6 @@ lexicographical_compare(_InputIterator1 __first1, _InputIterator1 __last1,
                                                 typename iterator_traits<_InputIterator2>::value_type>());
 }
 
-};
+}; /* namespace ft */
 
-#endif MGO_ALGORITHM_
+#endif /* MGO_ALGORITHM_ */
