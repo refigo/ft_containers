@@ -443,7 +443,7 @@ public:
     // pop_back()
     void pop_back()
     {
-        __destruct_at_end(this->__end_ - 1);
+        this->__destruct_at_end(this->__end_ - 1);
     }
     // insert()
     iterator insert(const_iterator __position, const_reference __x) // single element (1)
@@ -488,7 +488,11 @@ public:
         >::type __last) // range (3)
     {
         difference_type __off = __position - begin();
-        size_type __n = __last - __first;
+        size_type __n(0);
+        for (_InputIterator __tmp_first(__first)
+            ; __tmp_first != __last
+            ; ++__tmp_first)
+            ++__n;
         if (this->__end_ + __n >= this->__end_)
             reserve(__recommend(size() + __n));
         pointer __p = this->__begin_ + __off;
