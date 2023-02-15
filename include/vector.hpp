@@ -104,6 +104,16 @@ protected:
         }
         __alloc_ = __c.__alloc_;
     }
+
+    // __swap_alloc()
+    static void __swap_alloc(allocator_type& __x, allocator_type& __y)
+    {
+        // 임시 객체에 저장
+        allocator_type  __tmp(__x);
+        // 교환
+        __x = __y;
+        __y = __tmp;
+    }
 };
 
 template <class _Tp, class _Allocator = std::allocator<_Tp> >
@@ -467,7 +477,6 @@ public:
         for (size_type i(0); i < __n; ++i)
             this->__alloc_.construct(__p + i, __x);
         this->__end_ += __n;
-        return ;
     }
     template <class _InputIterator>
     void insert(const_iterator __position, _InputIterator __first, 
@@ -491,7 +500,6 @@ public:
         for (; __first != __last; ++__first, ++__p)
             this->__alloc_.construct(__p, *__first);
         this->__end_ += __n;
-        return ;
     }
     // template <class _InputIterator>
     //     typename enable_if
@@ -531,17 +539,19 @@ public:
         return __r;
     }
     // swap()
-    // void swap(vector&)
-    // {
-    //     _STD::swap(this->__begin_, __x.__begin_);
-    //     _STD::swap(this->__end_, __x.__end_);
-    //     _STD::swap(this->__end_cap(), __x.__end_cap());
-    //     __base::__swap_alloc(this->__alloc(), __x.__alloc());
-    // #ifdef _LIBCPP_DEBUG
-    //     iterator::swap(this, &__x);
-    //     const_iterator::swap(this, &__x);
-    // #endif
-    // }
+    void swap(vector& __x)
+    {
+        pointer __tmp_begin(this->__begin_);
+        pointer __tmp_end(this->__end_);
+        pointer __tmp_end_cap(this->__end_cap_);
+        this->__begin_ = __x.__begin_;
+        this->__end_ = __x.__end_;
+        this->__end_cap_ = __x.__end_cap_;
+        __x.__begin_ = __tmp_begin;
+        __x.__end_ = __tmp_end;
+        __x.__end_cap_ = __tmp_end_cap;
+        __base::__swap_alloc(this->__alloc_, __x.__alloc_);
+    }
     // clear()
     void clear() {__base::clear();}
 
@@ -676,7 +686,13 @@ private:
 // Non-member function overloads
 // relational operators()
 // swap()
-
+template <class _Tp, class _Allocator>
+inline
+void
+swap(vector<_Tp, _Allocator>& __x, vector<_Tp, _Allocator>& __y)
+{
+    __x.swap(__y);
+}
 
 };
 
