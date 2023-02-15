@@ -3,13 +3,14 @@
 
 #include "type_traits.hpp"
 #include "iterator.hpp"
+#include "algorithm.hpp"
 
 #include <limits> // numeric_limits
 #include <memory> // allocator
 #include <stdexcept> // for throwing error in __vector_base_common
 #include <algorithm> // min(), max()
 
-#include <iostream>
+// #include <iostream>
 
 namespace ft {
 
@@ -685,6 +686,54 @@ private:
 
 // Non-member function overloads
 // relational operators()
+template <class _Tp, class _Allocator>
+inline
+bool
+operator==(const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    const typename vector<_Tp, _Allocator>::size_type __sz = __x.size();
+    return __sz == __y.size() && ft::equal(__x.begin(), __x.end(), __y.begin());
+}
+
+template <class _Tp, class _Allocator>
+inline
+bool
+operator!=(const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    return !(__x == __y);
+}
+
+template <class _Tp, class _Allocator>
+inline
+bool
+operator< (const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    return ft::lexicographical_compare(__x.begin(), __x.end(), __y.begin(), __y.end());
+}
+
+template <class _Tp, class _Allocator>
+inline
+bool
+operator> (const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    return __y < __x;
+}
+
+template <class _Tp, class _Allocator>
+inline
+bool
+operator>=(const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    return !(__x < __y);
+}
+
+template <class _Tp, class _Allocator>
+inline
+bool
+operator<=(const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+{
+    return !(__y < __x);
+}
 // swap()
 template <class _Tp, class _Allocator>
 inline
