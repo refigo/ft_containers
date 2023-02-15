@@ -2,19 +2,16 @@
 #define MGO_ITERATOR_
 
 #include "type_traits.hpp"
+#include <stddef.h>
 
 namespace ft {
 
-// reference from stddef.h
-#define __MGO_PTRDIFF_TYPE__ long int
-typedef __MGO_PTRDIFF_TYPE__ mgo_ptrdiff_t;
-
-// iterator_category
-struct input_iterator_tag {};
-struct output_iterator_tag {};
-struct forward_iterator_tag       : public input_iterator_tag {};
-struct bidirectional_iterator_tag : public forward_iterator_tag {};
-struct random_access_iterator_tag : public bidirectional_iterator_tag {};
+// iterator tag
+typedef std::input_iterator_tag         input_iterator_tag;
+typedef std::output_iterator_tag        output_iterator_tag;
+typedef std::forward_iterator_tag       forward_iterator_tag;
+typedef std::bidirectional_iterator_tag bidirectional_iterator_tag;
+typedef std::random_access_iterator_tag random_access_iterator_tag;
 
 // is_iterator_category_convertible
 template <class FromIterCat, class ToIterCat>
@@ -90,7 +87,7 @@ struct iterator_traits
 template<class _Tp>
 struct iterator_traits<_Tp*>
 {
-    typedef mgo_ptrdiff_t difference_type;
+    typedef ptrdiff_t difference_type;
     typedef typename remove_const<_Tp>::type value_type;
     typedef _Tp* pointer;
     typedef _Tp& reference;
@@ -119,7 +116,7 @@ template <class _Tp>
 struct __is_random_access_iterator : public __has_iterator_category_convertible_to<_Tp, random_access_iterator_tag> {};
 
 // iterator
-template<class _Category, class _Tp, class _Distance = mgo_ptrdiff_t,
+template<class _Category, class _Tp, class _Distance = ptrdiff_t,
          class _Pointer = _Tp*, class _Reference = _Tp&>
 struct iterator
 {
@@ -298,7 +295,8 @@ public:
     __wrap_iter(iterator_type __x) : __i(__x) {}
     __wrap_iter() {}
     template <class _Up> __wrap_iter(const __wrap_iter<_Up>& __u,
-        typename enable_if<__has_iterator_category_convertible_to<_Up, iterator_category>::value>::type* = 0)
+        //typename enable_if<__has_iterator_category_convertible_to<_Up, iterator_category>::value>::type* = 0
+        typename enable_if<__is_random_access_iterator<_Up>::value>::type* = 0)
         : __i(__u.base()) {}
     reference operator*() const {return *__i;}
     pointer  operator->() const {return &(operator*());}
@@ -440,6 +438,6 @@ operator+(typename __wrap_iter<_Iter>::difference_type __n,
     return __wrap_iter<_Iter>(__x.base() + __n);
 }
 
-};
+}; /* namespace ft */
 
 #endif /* MGO_ITERATOR_ */
