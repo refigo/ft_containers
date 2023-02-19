@@ -438,6 +438,6 @@ operator+(typename __wrap_iter<_Iter>::difference_type __n,
     return __wrap_iter<_Iter>(__x.base() + __n);
 }
 
-}; /* namespace ft */
+} // namespace ft
 
 #endif /* MGO_ITERATOR_ */

@@ -76,6 +76,6 @@ template <>          struct add_lvalue_reference<const void>          {typedef c
 template <>          struct add_lvalue_reference<volatile void>       {typedef volatile void type;};
 template <>          struct add_lvalue_reference<const volatile void> {typedef const volatile void type;};
 
-};
+} // namespace ft
 
 #endif /* MGO_TYPE_TRAITS_ */

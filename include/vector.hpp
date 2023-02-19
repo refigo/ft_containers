@@ -747,6 +747,6 @@ swap(vector<_Tp, _Allocator>& __x, vector<_Tp, _Allocator>& __y)
     __x.swap(__y);
 }
 
-};
+} // namespace ft
 
 #endif /* MGO_VECTOR_HPP_ */
