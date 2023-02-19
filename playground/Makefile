@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME		=	a.out
+NAME		=	a_map.out
 
 CXX			=	c++
 CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
@@ -20,7 +20,7 @@ rm			=	rm -f
 
 INC			=	-I./ -I../include/
 
-SRC			=	main.cpp
+SRC			=	play_with_map.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 %.o		:	%.cpp

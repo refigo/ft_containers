@@ -4,6 +4,7 @@
 #include "__functional_base.hpp"
 #include "pair.hpp"
 #include "iterator.hpp"
+#include "__rb_tree.hpp"
 
 #include <memory>
 
@@ -99,141 +100,126 @@ public:
     typedef typename allocator_type::const_pointer         				const_pointer;
     typedef typename allocator_type::size_type             				size_type;
     typedef typename allocator_type::difference_type       				difference_type;
-    typedef ft::__map_iterator<typename __base::iterator>      			iterator;
-    typedef ft::__map_const_iterator<typename __base::const_iterator> 	const_iterator;
-    typedef ft::reverse_iterator<iterator>               				reverse_iterator;
-    typedef ft::reverse_iterator<const_iterator>         				const_reverse_iterator;
+    // typedef ft::__map_iterator<typename __base::iterator>      			iterator;
+    // typedef ft::__map_const_iterator<typename __base::const_iterator> 	const_iterator;
+    // typedef ft::reverse_iterator<iterator>               				reverse_iterator;
+    // typedef ft::reverse_iterator<const_iterator>         				const_reverse_iterator;
 
-    explicit map(const key_compare& __comp = key_compare())
-        : __tree_(__vc(__comp)) {}
-
-    explicit map(const key_compare& __comp, const allocator_type& __a)
+    // empty (1)
+    explicit map(const key_compare& __comp = key_compare(), 
+                    const allocator_type& __a = allocator_type())
         : __tree_(__vc(__comp), __a) {}
+    // explicit map(const key_compare& __comp = key_compare())
+    //     : __tree_(__vc(__comp)) {}
+    // explicit map(const key_compare& __comp, const allocator_type& __a)
+    //     : __tree_(__vc(__comp), __a) {}
 
-    template <class _InputIterator>
-        map(_InputIterator __f, _InputIterator __l,
-            const key_compare& __comp = key_compare())
-        : __tree_(__vc(__comp))
-        {
-            insert(__f, __l);
-        }
+    // range (2)
+    // template <class _InputIterator>
+    //     map(_InputIterator __f, _InputIterator __l,
+    //         const key_compare& __comp = key_compare())
+    //     : __tree_(__vc(__comp))
+    //     {
+    //         insert(__f, __l);
+    //     }
 
-    template <class _InputIterator>
-        map(_InputIterator __f, _InputIterator __l,
-            const key_compare& __comp, const allocator_type& __a)
-        : __tree_(__vc(__comp), __a)
-        {
-            insert(__f, __l);
-        }
+    // template <class _InputIterator>
+    //     map(_InputIterator __f, _InputIterator __l,
+    //         const key_compare& __comp, const allocator_type& __a)
+    //     : __tree_(__vc(__comp), __a)
+    //     {
+    //         insert(__f, __l);
+    //     }
 
-    map(const map& __m)
-        : __tree_(__m.__tree_)
-        {
-            insert(__m.begin(), __m.end());
-        }
-
-    explicit map(const allocator_type& __a)
-        : __tree_(__a)
-        {
-        }
-
-    map(const map& __m, const allocator_type& __a)
-        : __tree_(__m.__tree_.value_comp(), __a)
-        {
-            insert(__m.begin(), __m.end());
-        }
-
-          iterator begin()       {return __tree_.begin();}
-    const_iterator begin() const {return __tree_.begin();}
-          iterator end()         {return __tree_.end();}
-    const_iterator end()   const {return __tree_.end();}
-
-          reverse_iterator rbegin()       {return       reverse_iterator(end());}
-    const_reverse_iterator rbegin() const {return const_reverse_iterator(end());}
-          reverse_iterator rend()         {return       reverse_iterator(begin());}
-    const_reverse_iterator rend()   const {return const_reverse_iterator(begin());}
-
-    const_iterator         cbegin()  const {return begin();}
-    const_iterator         cend()    const {return end();}
-    const_reverse_iterator crbegin() const {return rbegin();}
-    const_reverse_iterator crend()   const {return rend();}
-
-    bool      empty()    const {return __tree_.size() == 0;}
-    size_type size()     const {return __tree_.size();}
-    size_type max_size() const {return __tree_.max_size();}
-
-    mapped_type& operator[](const key_type& __k);
-
-          mapped_type& at(const key_type& __k);
-    const mapped_type& at(const key_type& __k) const;
-
-    allocator_type get_allocator() const {return __tree_.__alloc();}
-    key_compare    key_comp()      const {return __tree_.value_comp().key_comp();}
-    value_compare  value_comp()    const {return value_compare(__tree_.value_comp().key_comp());}
+    // copy (3)
+    // map(const map& __m)
+    //     : __tree_(__m.__tree_)
+    //     {
+    //         insert(__m.begin(), __m.end());
+    //     }
 
 
-    pair<iterator, bool>
-        insert(const value_type& __v) {return __tree_.__insert_unique(__v);}
+    //       iterator begin()       {return __tree_.begin();}
+    // const_iterator begin() const {return __tree_.begin();}
+    //       iterator end()         {return __tree_.end();}
+    // const_iterator end()   const {return __tree_.end();}
 
-    iterator
-        insert(const_iterator __p, const value_type& __v)
-            {return __tree_.__insert_unique(__p.__i_, __v);}
+    //       reverse_iterator rbegin()       {return       reverse_iterator(end());}
+    // const_reverse_iterator rbegin() const {return const_reverse_iterator(end());}
+    //       reverse_iterator rend()         {return       reverse_iterator(begin());}
+    // const_reverse_iterator rend()   const {return const_reverse_iterator(begin());}
 
-    template <class _InputIterator>
-        void insert(_InputIterator __f, _InputIterator __l)
-        {
-            for (const_iterator __e = cend(); __f != __l; ++__f)
-                insert(__e.__i_, *__f);
-        }
+    // const_iterator         cbegin()  const {return begin();}
+    // const_iterator         cend()    const {return end();}
+    // const_reverse_iterator crbegin() const {return rbegin();}
+    // const_reverse_iterator crend()   const {return rend();}
 
-    void insert(initializer_list<value_type> __il)
-        {insert(__il.begin(), __il.end());}
+    // bool      empty()    const {return __tree_.size() == 0;}
+    // size_type size()     const {return __tree_.size();}
+    // size_type max_size() const {return __tree_.max_size();}
 
-    iterator erase(const_iterator __p) {return __tree_.erase(__p.__i_);}
-    size_type erase(const key_type& __k)
-        {return __tree_.__erase_unique(__k);}
-    iterator  erase(const_iterator __f, const_iterator __l)
-        {return __tree_.erase(__f.__i_, __l.__i_);}
-    void clear() {__tree_.clear();}
+    // mapped_type& operator[](const key_type& __k);
 
-    void swap(map& __m) {__tree_.swap(__m.__tree_);}
+    //       mapped_type& at(const key_type& __k);
+    // const mapped_type& at(const key_type& __k) const;
 
-    iterator find(const key_type& __k)             {return __tree_.find(__k);}
-    const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
-    size_type      count(const key_type& __k) const
-        {return __tree_.__count_unique(__k);}
-    iterator lower_bound(const key_type& __k)
-        {return __tree_.lower_bound(__k);}
-    const_iterator lower_bound(const key_type& __k) const
-        {return __tree_.lower_bound(__k);}
-    iterator upper_bound(const key_type& __k)
-        {return __tree_.upper_bound(__k);}
-    const_iterator upper_bound(const key_type& __k) const
-        {return __tree_.upper_bound(__k);}
-    pair<iterator,iterator> equal_range(const key_type& __k)
-        {return __tree_.__equal_range_unique(__k);}
-    pair<const_iterator,const_iterator> equal_range(const key_type& __k) const
-        {return __tree_.__equal_range_unique(__k);}
+    // allocator_type get_allocator() const {return __tree_.__alloc();}
+    // key_compare    key_comp()      const {return __tree_.value_comp().key_comp();}
+    // value_compare  value_comp()    const {return value_compare(__tree_.value_comp().key_comp());}
+
+
+    // pair<iterator, bool>
+    //     insert(const value_type& __v) {return __tree_.__insert_unique(__v);}
+
+    // iterator
+    //     insert(const_iterator __p, const value_type& __v)
+    //         {return __tree_.__insert_unique(__p.__i_, __v);}
+
+    // template <class _InputIterator>
+    //     void insert(_InputIterator __f, _InputIterator __l)
+    //     {
+    //         for (const_iterator __e = cend(); __f != __l; ++__f)
+    //             insert(__e.__i_, *__f);
+    //     }
+
+    // void insert(initializer_list<value_type> __il)
+    //     {insert(__il.begin(), __il.end());}
+
+    // iterator erase(const_iterator __p) {return __tree_.erase(__p.__i_);}
+    // size_type erase(const key_type& __k)
+    //     {return __tree_.__erase_unique(__k);}
+    // iterator  erase(const_iterator __f, const_iterator __l)
+    //     {return __tree_.erase(__f.__i_, __l.__i_);}
+    // void clear() {__tree_.clear();}
+
+    // void swap(map& __m) {__tree_.swap(__m.__tree_);}
+
+    // iterator find(const key_type& __k)             {return __tree_.find(__k);}
+    // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
+    // size_type      count(const key_type& __k) const
+    //     {return __tree_.__count_unique(__k);}
+    // iterator lower_bound(const key_type& __k)
+    //     {return __tree_.lower_bound(__k);}
+    // const_iterator lower_bound(const key_type& __k) const
+    //     {return __tree_.lower_bound(__k);}
+    // iterator upper_bound(const key_type& __k)
+    //     {return __tree_.upper_bound(__k);}
+    // const_iterator upper_bound(const key_type& __k) const
+    //     {return __tree_.upper_bound(__k);}
+    // pair<iterator,iterator> equal_range(const key_type& __k)
+    //     {return __tree_.__equal_range_unique(__k);}
+    // pair<const_iterator,const_iterator> equal_range(const key_type& __k) const
+    //     {return __tree_.__equal_range_unique(__k);}
 
 private:
     typedef typename __base::__node                    __node;
     typedef typename __base::__node_allocator          __node_allocator;
     typedef typename __base::__node_pointer            __node_pointer;
-    typedef typename __base::__node_const_pointer      __node_const_pointer;
-    typedef typename __base::__node_base_pointer       __node_base_pointer;
-    typedef typename __base::__node_base_const_pointer __node_base_const_pointer;
-    typedef __map_node_destructor<__node_allocator> _D;
-    typedef unique_ptr<__node, _D> __node_holder;
-
-    __node_holder __construct_node(const key_type& __k);
-
-    __node_base_pointer&
-        __find_equal_key(__node_base_pointer& __parent, const key_type& __k);
-    __node_base_pointer&
-        __find_equal_key(const_iterator __hint,
-                         __node_base_pointer& __parent, const key_type& __k);
-    __node_base_const_pointer
-        __find_equal_key(__node_base_const_pointer& __parent, const key_type& __k) const;
+    // typedef typename __base::__node_const_pointer      __node_const_pointer;
+    // typedef typename __base::__node_base_pointer       __node_base_pointer;
+    // typedef typename __base::__node_base_const_pointer __node_base_const_pointer;
+    // typedef __map_node_destructor<__node_allocator> _D;
+    // typedef unique_ptr<__node, _D> __node_holder;
 };
 
 } // namespace ft
