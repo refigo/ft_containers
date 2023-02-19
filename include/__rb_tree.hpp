@@ -1,6 +1,10 @@
 #ifndef __MGO_RB_TREE_
 #define __MGO_RB_TREE_
 
+#include "iterator.hpp"
+
+#include <memory>
+
 namespace ft {
 
 // __rb_tree_node
@@ -45,6 +49,59 @@ public:
 
     explicit __rb_tree_node(const value_type& __v)
             : __value_(__v) {}
+};
+
+// __rb_tree_iterator
+
+template <class _Tp, class _NodePtr, class _DiffType>
+class __rb_tree_iterator
+{
+    typedef _NodePtr                                              	__node_pointer;
+    typedef __node_pointer*											__node;
+    typedef typename __node::base                                 	__node_base;
+    typedef typename __node_base::pointer                         	__node_base_pointer;
+
+    __node_pointer __ptr_;
+
+    // typedef pointer_traits<__node_pointer> __pointer_traits;
+public:
+    typedef bidirectional_iterator_tag 	iterator_category;
+    typedef _Tp                        	value_type;
+    typedef _DiffType                  	difference_type;
+    typedef value_type&                	reference;
+    typedef value_type*					pointer;
+
+    __rb_tree_iterator() {}
+
+    reference operator*() const {return __ptr_->__value_;}
+    pointer operator->() const {return &__ptr_->__value_;}
+
+    __rb_tree_iterator& operator++()
+        {__ptr_ = static_cast<__node_pointer>(__tree_next(static_cast<__node_base_pointer>(__ptr_)));
+         return *this;}
+    __rb_tree_iterator operator++(int)
+        {__rb_tree_iterator __t(*this); ++(*this); return __t;}
+
+    __rb_tree_iterator& operator--()
+        {__ptr_ = static_cast<__node_pointer>(__tree_prev(static_cast<__node_base_pointer>(__ptr_)));
+         return *this;}
+    __rb_tree_iterator operator--(int)
+        {__rb_tree_iterator __t(*this); --(*this); return __t;}
+
+    friend bool operator==(const __rb_tree_iterator& __x, const __rb_tree_iterator& __y)
+        {return __x.__ptr_ == __y.__ptr_;}
+    friend bool operator!=(const __rb_tree_iterator& __x, const __rb_tree_iterator& __y)
+        {return !(__x == __y);}
+
+private:
+    explicit __rb_tree_iterator(__node_pointer __p) : __ptr_(__p) {}
+    // template <class, class, class> friend class __tree;
+    // template <class, class, class> friend class __tree_const_iterator;
+    // template <class> friend class __map_iterator;
+    // template <class, class, class, class> friend class map;
+    // template <class, class, class, class> friend class multimap;
+    // template <class, class, class> friend class set;
+    // template <class, class, class> friend class multiset;
 };
 
 // __rb_tree
