@@ -57,6 +57,119 @@ namespace ft
 // //         {return static_cast<const _Compare&>(*this)(__x, __y);}
 // };
 
+// map_iterator
+
+// template <class _TreeIterator>
+// class __map_iterator
+// {
+//     _TreeIterator __i_;
+
+//     typedef typename _TreeIterator::__pointer_traits             __pointer_traits;
+//     typedef const typename _TreeIterator::value_type::first_type key_type;
+//     typedef typename _TreeIterator::value_type::second_type      mapped_type;
+// public:
+//     typedef bidirectional_iterator_tag                           iterator_category;
+//     typedef pair<key_type, mapped_type>                          value_type;
+//     typedef typename _TreeIterator::difference_type              difference_type;
+//     typedef value_type&                                          reference;
+//     typedef typename __pointer_traits::template
+// #ifndef _LIBCPP_HAS_NO_TEMPLATE_ALIASES
+//             rebind<value_type>
+// #else
+//             rebind<value_type>::other
+// #endif
+//                                                                  pointer;
+
+//     __map_iterator() {}
+
+//     __map_iterator(_TreeIterator __i) : __i_(__i) {}
+
+//     reference operator*() const {return *operator->();}
+//     pointer operator->() const {return (pointer)__i_.operator->();}
+
+//     __map_iterator& operator++() {++__i_; return *this;}
+//     __map_iterator operator++(int)
+//     {
+//         __map_iterator __t(*this);
+//         ++(*this);
+//         return __t;
+//     }
+
+//     __map_iterator& operator--() {--__i_; return *this;}
+//     __map_iterator operator--(int)
+//     {
+//         __map_iterator __t(*this);
+//         --(*this);
+//         return __t;
+//     }
+
+//     friend bool operator==(const __map_iterator& __x, const __map_iterator& __y)
+//         {return __x.__i_ == __y.__i_;}
+//     friend bool operator!=(const __map_iterator& __x, const __map_iterator& __y)
+//         {return __x.__i_ != __y.__i_;}
+
+//     template <class, class, class, class> friend class map;
+//     template <class, class, class, class> friend class multimap;
+//     template <class> friend class __map_const_iterator;
+// };
+
+// template <class _TreeIterator>
+// class __map_const_iterator
+// {
+//     _TreeIterator __i_;
+
+//     typedef typename _TreeIterator::__pointer_traits             __pointer_traits;
+//     typedef const typename _TreeIterator::value_type::first_type key_type;
+//     typedef typename _TreeIterator::value_type::second_type      mapped_type;
+// public:
+//     typedef bidirectional_iterator_tag                           iterator_category;
+//     typedef pair<key_type, mapped_type>                          value_type;
+//     typedef typename _TreeIterator::difference_type              difference_type;
+//     typedef const value_type&                                    reference;
+//     typedef typename __pointer_traits::template
+// #ifndef _LIBCPP_HAS_NO_TEMPLATE_ALIASES
+//             rebind<value_type>
+// #else
+//             rebind<value_type>::other
+// #endif
+//                                                                  pointer;
+
+//     __map_const_iterator() {}
+
+//     __map_const_iterator(_TreeIterator __i) : __i_(__i) {}
+//     __map_const_iterator(
+//             __map_iterator<typename _TreeIterator::__non_const_iterator> __i)
+//                 : __i_(__i.__i_) {}
+
+//     reference operator*() const {return *operator->();}
+//     pointer operator->() const {return (pointer)__i_.operator->();}
+
+//     __map_const_iterator& operator++() {++__i_; return *this;}
+//     __map_const_iterator operator++(int)
+//     {
+//         __map_const_iterator __t(*this);
+//         ++(*this);
+//         return __t;
+//     }
+
+//     __map_const_iterator& operator--() {--__i_; return *this;}
+//     __map_const_iterator operator--(int)
+//     {
+//         __map_const_iterator __t(*this);
+//         --(*this);
+//         return __t;
+//     }
+
+//     friend bool operator==(const __map_const_iterator& __x, const __map_const_iterator& __y)
+//         {return __x.__i_ == __y.__i_;}
+//     friend bool operator!=(const __map_const_iterator& __x, const __map_const_iterator& __y)
+//         {return __x.__i_ != __y.__i_;}
+
+//     template <class, class, class, class> friend class map;
+//     template <class, class, class, class> friend class multimap;
+//     template <class, class, class> friend class __tree_const_iterator;
+// };
+
 
 template <class _Key, class _Tp, class _Compare = ft::less<_Key>,
           class _Allocator = std::allocator<ft::pair<const _Key, _Tp> > >
@@ -100,10 +213,13 @@ public:
     typedef typename allocator_type::const_pointer         				const_pointer;
     typedef typename allocator_type::size_type             				size_type;
     typedef typename allocator_type::difference_type       				difference_type;
+
     // typedef ft::__map_iterator<typename __base::iterator>      			iterator;
     // typedef ft::__map_const_iterator<typename __base::const_iterator> 	const_iterator;
     // typedef ft::reverse_iterator<iterator>               				reverse_iterator;
     // typedef ft::reverse_iterator<const_iterator>         				const_reverse_iterator;
+    
+    typedef ft::__rb_tree_iterator<__value_type>      			iterator;
 
     // empty (1)
     explicit map(const key_compare& __comp = key_compare(), 
@@ -167,7 +283,21 @@ public:
     // key_compare    key_comp()      const {return __tree_.value_comp().key_comp();}
     // value_compare  value_comp()    const {return value_compare(__tree_.value_comp().key_comp());}
 
+// Modifiers:
+    // insert
+        // single element (1)
+    pair<iterator, bool>
+        insert(const value_type& __v) {return __tree_.__insert_unique(__v);}
+    
+        // with hint (2)
+        // range (3)
 
+// Operations:
+    // find
+    iterator find(const key_type& __k)             {return __tree_.find(__k);}
+    // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
+
+// ref (clang)
     // pair<iterator, bool>
     //     insert(const value_type& __v) {return __tree_.__insert_unique(__v);}
 

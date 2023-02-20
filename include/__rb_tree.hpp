@@ -55,60 +55,100 @@ public:
 		, __right_(NULL) {}
 
     explicit __rb_tree_node(const value_type& __v)
-            : __value_(__v), __is_black_(false), __left_(), __right_(), __parent_() {}
+		: __value_(__v), __is_black_(false), __left_(), __right_(), __parent_() {}
 };
 
 // __rb_tree_iterator
 
-template <class _Tp, class _NodePtr, class _DiffType>
+template <class _Tp>
 class __rb_tree_iterator
 {
-    typedef _NodePtr                                              	__node_pointer;
-    typedef __node_pointer*											__node;
-    typedef typename __node::base                                 	__node_base;
-    typedef typename __node_base::pointer                         	__node_base_pointer;
-
-    __node_pointer __ptr_;
-
-    // typedef pointer_traits<__node_pointer> __pointer_traits;
+private:
+	typedef	ft::__rb_tree_node<_Tp>				node;
+	typedef	ft::__rb_tree_node<_Tp>*			node_pointer;
 public:
-    typedef bidirectional_iterator_tag 	iterator_category;
-    typedef _Tp                        	value_type;
-    typedef _DiffType                  	difference_type;
-    typedef value_type&                	reference;
-    typedef value_type*					pointer;
+	typedef	bidirectional_iterator_tag			iterator_category;
+	typedef	_Tp									value_type;
+	typedef	value_type&							reference;
+	typedef	std::ptrdiff_t						difference_type;
+	typedef	_Tp*								pointer;
 
-    __rb_tree_iterator() {}
+	__rb_tree_iterator()
+		: __node_ptr_() {}
+	__rb_tree_iterator(const __rb_tree_iterator &__ref)
+		: __node_ptr_(__ref.__node_ptr_) {}
+	__rb_tree_iterator(node_pointer __node_ptr)
+		: __node_ptr_(__node_ptr) {}
+	
+	~__rb_tree_iterator() {}
 
-    reference operator*() const {return __ptr_->__value_;}
-    pointer operator->() const {return &__ptr_->__value_;}
+	__rb_tree_iterator&		operator=(const __rb_tree_iterator& __ref)
+	{
+		if (this != &__ref)
+			this->__node_ptr_ = __ref.__node_ptr;
+		return (*this);
+	}
 
-    __rb_tree_iterator& operator++()
-        {__ptr_ = static_cast<__node_pointer>(__tree_next(static_cast<__node_base_pointer>(__ptr_)));
-         return *this;}
-    __rb_tree_iterator operator++(int)
-        {__rb_tree_iterator __t(*this); ++(*this); return __t;}
+	node_pointer		base() const { return (this->__node_ptr_); }
 
-    __rb_tree_iterator& operator--()
-        {__ptr_ = static_cast<__node_pointer>(__tree_prev(static_cast<__node_base_pointer>(__ptr_)));
-         return *this;}
-    __rb_tree_iterator operator--(int)
-        {__rb_tree_iterator __t(*this); --(*this); return __t;}
+	__rb_tree_iterator&		operator++()
+	{
+		if (__node_ptr_->right != NULL) {
+			__node_ptr_ = getLeftMostNodePtrFrom(__node_ptr_->right);
+			return (*this);
+		}
+		while (__node_ptr_->parent && __node_ptr_->parent->right == __node_ptr_)
+			__node_ptr_ = __node_ptr_->parent;
+		if (__node_ptr_->parent)
+			__node_ptr_ = __node_ptr_->parent;
+		// TODO: check end() using else to null?
+		return (*this);
+	}
+	__rb_tree_iterator&		operator--()
+	{
+		if (__node_ptr_->left != NULL) {
+			__node_ptr_ = getRightMostNodePtrFrom(__node_ptr_->left);
+			return (*this);
+		}
+		while (__node_ptr_->parent && __node_ptr_->parent->left == __node_ptr_)
+			__node_ptr_ = __node_ptr_->parent;
+		if (__node_ptr_->parent)
+			__node_ptr_ = __node_ptr_->parent;
+		else
+			__node_ptr_ = NULL;
+		return (*this);
+	}
+	__rb_tree_iterator	operator++(int)		{ __rb_tree_iterator	__ret = *this; ++(*this); return (__ret); }
+	__rb_tree_iterator	operator--(int)		{ __rb_tree_iterator	__ret = *this; --(*this); return (__ret); }
 
-    friend bool operator==(const __rb_tree_iterator& __x, const __rb_tree_iterator& __y)
-        {return __x.__ptr_ == __y.__ptr_;}
-    friend bool operator!=(const __rb_tree_iterator& __x, const __rb_tree_iterator& __y)
-        {return !(__x == __y);}
+	reference			operator*()	const	{ return (__node_ptr_->value); }
+	pointer				operator->() const	{ return (&(__node_ptr_->value)); }
+
+	bool				operator ==	(const __rb_tree_iterator& rhs) { return (this->_node == rhs._node); }
+	bool				operator !=	(const __rb_tree_iterator& rhs) { return (this->_node != rhs._node); }
+	// bool				operator ==	(const __rb_tree_const_iterator<T>& rhs) { return (this->base() == rhs.base()); }
+	// bool				operator !=	(const __rb_tree_const_iterator<T>& rhs) { return (this->base() != rhs.base()); }
 
 private:
-    explicit __rb_tree_iterator(__node_pointer __p) : __ptr_(__p) {}
-    // template <class, class, class> friend class __tree;
-    // template <class, class, class> friend class __tree_const_iterator;
-    // template <class> friend class __map_iterator;
-    // template <class, class, class, class> friend class map;
-    // template <class, class, class, class> friend class multimap;
-    // template <class, class, class> friend class set;
-    // template <class, class, class> friend class multiset;
+	node_pointer	__node_ptr_;
+
+	node_pointer	getLeftMostNodePtrFrom(node_pointer __node_ptr)
+	{
+		if (__node_ptr == NULL) // check nil
+			return (__node_ptr);
+		while (__node_ptr->left != NULL)
+			__node_ptr = __node_ptr->left;
+		return (__node_ptr);
+	}
+	node_pointer	getRightMostNodePtrFrom(node_pointer __node_ptr)
+	{
+		if (__node_ptr == NULL)
+			return (__node_ptr);
+		while (__node_ptr->right != NULL)
+			__node_ptr = __node_ptr->right;
+		return (__node_ptr);
+	}
+
 };
 
 // __rb_tree
@@ -131,8 +171,7 @@ public:
 	typedef	typename allocator_type::template rebind<__node>::other	__node_allocator; // NOTE
 
 	// iterator
-	typedef	ft::__rb_tree_iterator<value_type, 
-			__node_pointer, difference_type>					iterator;
+	typedef	ft::__rb_tree_iterator<value_type>					iterator;
 	typedef	ft::reverse_iterator<iterator>						reverse_iterator;
 
 private:
@@ -155,6 +194,41 @@ public:
 			__nil_ = __node_alloc_.allocate(1);
 			__node_alloc_.construct(__nil_, __node());
 		}
+	
+
+	// pair<typename __tree<_Tp, _Compare, _Allocator>::iterator, bool>
+	// __insert_unique(const value_type& __v)
+	// {
+	// 	// 이미 같은게 있는지 찾기
+	// 	// getRoot
+	// 	// 기존에 같은게 없으면 insert
+	// 	node_pointer	node = _node_alloc.allocate(1);
+	// 	_node_alloc.construct(node, node_type(val));
+	// 	pair<iterator,bool> ret = insertNode(node);
+	// 	if (ret.second == false) {
+	// 		_node_alloc.destroy(node);
+	// 		_node_alloc.deallocate(node, 1);
+	// 	} else {
+	// 		this->_size++;
+	// 		fixAfterInsert(node);
+	// 	}
+	// 	return (ret);
+
+
+	// 	__node_base_pointer __parent;
+	// 	__node_base_pointer& __child = __find_equal(__parent, __v);
+	// 	__node_pointer __r = static_cast<__node_pointer>(__child);
+	// 	bool __inserted = false;
+		
+	// 	if (__child == nullptr)
+	// 	{
+	// 		__node_holder __h = __construct_node(__v);
+	// 		__insert_node_at(__parent, __child, __h.get());
+	// 		__r = __h.release();
+	// 		__inserted = true;
+	// 	}
+	// 	return pair<iterator, bool>(iterator(__r), __inserted);
+	// }
 
 };
 
