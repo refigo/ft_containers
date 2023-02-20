@@ -28,6 +28,7 @@ iterators invalidated are those referring to the deleted node.
 
 #include "iterator.hpp"
 #include "pair.hpp"
+#include "stl_rb_tree_node.hpp"
 
 #include <memory>
 
@@ -50,6 +51,26 @@ public:
                 { Alloc::deallocate(p, sizeof (T)); }
 };
 
+template<class T, class Alloc>
+class mgo_simple_alloc {
+	Alloc	__alloc_;
+
+public:
+    T *allocate(size_t n)
+                { return 0 == n? 0 : (T*) __alloc_.allocate(n * sizeof (T)); }
+    T *allocate(void)
+                { return (T*) __alloc_.allocate(sizeof (T)); }
+    void deallocate(T *p, size_t n)
+                { if (0 != n) __alloc_.deallocate(p, n * sizeof (T)); }
+    void deallocate(T *p)
+                { __alloc_.deallocate(p, sizeof (T)); }
+	
+	void destroy(T *p)
+	{
+		__alloc_.destroy(p);
+	}
+};
+
 template <class T>
 inline void swap(T& a, T& b) {
   T tmp = a;
@@ -59,40 +80,7 @@ inline void swap(T& a, T& b) {
 
 // done utils for tree
 
-typedef bool __rb_tree_color_type;
-const __rb_tree_color_type __rb_tree_red = false;
-const __rb_tree_color_type __rb_tree_black = true;
-
-struct __rb_tree_node_base
-{
-  typedef __rb_tree_color_type color_type;
-  typedef __rb_tree_node_base* base_ptr;
-
-  color_type color; 
-  base_ptr parent;
-  base_ptr left;
-  base_ptr right;
-
-  static base_ptr minimum(base_ptr x)
-  {
-    while (x->left != 0) x = x->left;
-    return x;
-  }
-
-  static base_ptr maximum(base_ptr x)
-  {
-    while (x->right != 0) x = x->right;
-    return x;
-  }
-};
-
-template <class Value>
-struct __rb_tree_node : public __rb_tree_node_base
-{
-  typedef __rb_tree_node<Value>* link_type;
-  Value value_field;
-};
-
+// (deprecated)node place
 
 struct __rb_tree_base_iterator
 {
@@ -345,14 +333,16 @@ __rb_tree_rebalance_for_erase(__rb_tree_node_base* z,
       if (z->right == 0)        // z->left must be null also
         leftmost = z->parent;
     // makes leftmost == header if z == root
-      else
+      else {
         leftmost = __rb_tree_node_base::minimum(x);
+	  }
     if (rightmost == z)  
       if (z->left == 0)         // z->right must be null also
         rightmost = z->parent;  
     // makes rightmost == header if z == root
-      else                      // x == z->left
+      else {                     // x == z->left
         rightmost = __rb_tree_node_base::maximum(x);
+	  }
   }
   if (y->color != __rb_tree_red) { 
     while (x != root && (x == 0 || x->color == __rb_tree_black))
@@ -421,8 +411,8 @@ protected:
   typedef void* void_pointer;
   typedef __rb_tree_node_base* base_ptr;
   typedef __rb_tree_node<Value> rb_tree_node;
-  typedef simple_alloc<rb_tree_node, Alloc> rb_tree_node_allocator;
-  typedef Alloc								test_tree_node_allocator;
+//   typedef simple_alloc<rb_tree_node, Alloc> rb_tree_node_allocator;
+  typedef mgo_simple_alloc<rb_tree_node, Alloc>	rb_tree_node_allocator;
   typedef __rb_tree_color_type color_type;
 public:
   typedef Key key_type;
@@ -435,13 +425,13 @@ public:
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 protected:
-  rb_tree_node_allocator node_alloc_;
+  rb_tree_node_allocator __node_alloc_;
   link_type get_node() {
-	return node_alloc_.allocate();
+	return __node_alloc_.allocate();
 	// return rb_tree_node_allocator::allocate(); // NOTE
   }
   void put_node(link_type p) {
-	return node_alloc_.deallocate(p);
+	__node_alloc_.deallocate(p);
 	// rb_tree_node_allocator::deallocate(p); // NOTE
   }
 
@@ -463,7 +453,8 @@ protected:
   }
 
   void destroy_node(link_type p) {
-    destroy(&p->value_field);
+    // destroy(&p->value_field);
+	__node_alloc_.destroy(p);
     put_node(p);
   }
 
@@ -578,9 +569,9 @@ public:
   size_type max_size() const { return size_type(-1); }
 
   void swap(rb_tree<Key, Value, KeyOfValue, Compare, Alloc>& t) {
-    __STD::swap(header, t.header);
-    __STD::swap(node_count, t.node_count);
-    __STD::swap(key_compare, t.key_compare);
+    ft::swap(header, t.header);
+    ft::swap(node_count, t.node_count);
+    ft::swap(key_compare, t.key_compare);
   }
     
 public:
@@ -743,8 +734,9 @@ rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(const Value& v)
   if (comp)
     if (j == begin())     
       return pair<iterator,bool>(__insert(x, y, v), true);
-    else
+    else {
       --j;
+	}
   if (key_compare(key(j.node), KeyOfValue()(v)))
     return pair<iterator,bool>(__insert(x, y, v), true);
   return pair<iterator,bool>(j, false);
