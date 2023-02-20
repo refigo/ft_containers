@@ -7,14 +7,18 @@
 #include "__functional_base.hpp"
 #include "stl_rb_tree.hpp"
 
+#include "stl_rb_tree_node.hpp"
+
 #include <memory>
+
+#include <functional> // unary_function
 
 namespace ft {
 
 // utils for map
 
 template <class Pair>
-struct select1st : public unary_function<Pair, typename Pair::first_type> {
+struct select1st : public std::unary_function<Pair, typename Pair::first_type> {
   const typename Pair::first_type& operator()(const Pair& x) const
   {
     return x.first;
@@ -29,7 +33,15 @@ struct select1st : public unary_function<Pair, typename Pair::first_type> {
 // #endif
 
 // #ifndef __STL_LIMITED_DEFAULT_TEMPLATES
-template <class Key, class T, class Compare = ft::less<Key>, class Alloc = std::allocator<ft::pair<const Key,T>>>
+template <class Key
+		, class T
+		, class Compare = ft::less<Key>
+		, class Alloc = std::allocator<
+			ft::__rb_tree_node<
+				ft::pair<const Key, T> 
+			> 
+		>
+	>
 // #else
 // template <class Key, class T, class Compare, class Alloc = alloc>
 // #endif
@@ -169,21 +181,21 @@ public:
   pair<const_iterator,const_iterator> equal_range(const key_type& x) const {
     return t.equal_range(x);
   }
-  friend bool operator== <> (const map&, const map&);
-  friend bool operator< <> (const map&, const map&);
+//   friend bool operator== <> (const map&, const map&);
+//   friend bool operator< <> (const map&, const map&);
 };
 
-template <class Key, class T, class Compare, class Alloc>
-inline bool operator==(const map<Key, T, Compare, Alloc>& x, 
-                       const map<Key, T, Compare, Alloc>& y) {
-  return x.t == y.t;
-}
+// template <class Key, class T, class Compare, class Alloc>
+// inline bool operator==(const map<Key, T, Compare, Alloc>& x, 
+//                        const map<Key, T, Compare, Alloc>& y) {
+//   return x.t == y.t;
+// }
 
-template <class Key, class T, class Compare, class Alloc>
-inline bool operator<(const map<Key, T, Compare, Alloc>& x, 
-                      const map<Key, T, Compare, Alloc>& y) {
-  return x.t < y.t;
-}
+// template <class Key, class T, class Compare, class Alloc>
+// inline bool operator<(const map<Key, T, Compare, Alloc>& x, 
+//                       const map<Key, T, Compare, Alloc>& y) {
+//   return x.t < y.t;
+// }
 
 // #ifdef __STL_FUNCTION_TMPL_PARTIAL_ORDER
 
