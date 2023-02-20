@@ -192,7 +192,6 @@ private:
 	typedef	ft::__rb_tree_node<value_type>*							__node_pointer;
 	typedef	typename allocator_type::template rebind<__node>::other	__node_allocator; // NOTE: __node에 대한 allocator 타입
 
-private:
 	value_compare		__val_comp_;
 	allocator_type		__alloc_;
 	__node_allocator	__node_alloc_;

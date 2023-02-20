@@ -182,8 +182,21 @@ public:
     typedef ft::pair<const key_type, mapped_type>		value_type;
     typedef _Compare                                 	key_compare;
     typedef _Allocator                               	allocator_type;
-    // typedef value_type&                              reference;
-    // typedef const value_type&                        const_reference;
+    typedef value_type&                                 reference;
+    typedef const value_type&                           const_reference;
+    typedef typename allocator_type::pointer            pointer;
+    typedef typename allocator_type::const_pointer      const_pointer;
+    typedef typename allocator_type::size_type          size_type;
+    typedef typename allocator_type::difference_type    difference_type;
+
+    typedef ft::__rb_tree_iterator<value_type>      	iterator;
+    typedef ft::__rb_tree_iterator<const value_type>    const_iterator;
+
+    // typedef ft::__map_iterator<typename __base::iterator>      			iterator;
+    // typedef ft::__map_const_iterator<typename __base::const_iterator> 	const_iterator;
+    // typedef ft::reverse_iterator<iterator>               				reverse_iterator;
+    // typedef ft::reverse_iterator<const_iterator>         				const_reverse_iterator;
+    
 
     class value_compare
         : public ft::binary_function<value_type, value_type, bool>
@@ -209,17 +222,18 @@ private:
     __base __tree_;
 
 public:
-    typedef typename allocator_type::pointer               				pointer;
-    typedef typename allocator_type::const_pointer         				const_pointer;
-    typedef typename allocator_type::size_type             				size_type;
-    typedef typename allocator_type::difference_type       				difference_type;
+    // typedef typename allocator_type::pointer               				pointer;
+    // typedef typename allocator_type::const_pointer         				const_pointer;
+    // typedef typename allocator_type::size_type             				size_type;
+    // typedef typename allocator_type::difference_type       				difference_type;
 
     // typedef ft::__map_iterator<typename __base::iterator>      			iterator;
     // typedef ft::__map_const_iterator<typename __base::const_iterator> 	const_iterator;
     // typedef ft::reverse_iterator<iterator>               				reverse_iterator;
     // typedef ft::reverse_iterator<const_iterator>         				const_reverse_iterator;
     
-    typedef ft::__rb_tree_iterator<__value_type>      			iterator;
+    // typedef ft::__rb_tree_iterator<__value_type>      			iterator;
+
 
     // empty (1)
     explicit map(const key_compare& __comp = key_compare(), 
@@ -295,7 +309,7 @@ public:
 // Operations:
     // find
     iterator find(const key_type& __k)             {return __tree_.find(__k);}
-    // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
+    const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
 
 // ref (clang)
     // pair<iterator, bool>
