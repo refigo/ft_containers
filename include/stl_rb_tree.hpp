@@ -65,6 +65,10 @@ public:
     void deallocate(T *p)
                 { __alloc_.deallocate(p, sizeof (T)); }
 	
+	void construct(T *p)
+	{
+		__alloc_.construct(p);
+	}
 	void destroy(T *p)
 	{
 		__alloc_.destroy(p);
@@ -322,27 +326,31 @@ __rb_tree_rebalance_for_erase(__rb_tree_node_base* z,
   else {                        // y == z
     x_parent = y->parent;
     if (x) x->parent = y->parent;   
-    if (root == z)
+    if (root == z) {
       root = x;
-    else 
+	}
+    else {
       if (z->parent->left == z)
         z->parent->left = x;
       else
         z->parent->right = x;
-    if (leftmost == z) 
+	}
+    if (leftmost == z) {
       if (z->right == 0)        // z->left must be null also
         leftmost = z->parent;
     // makes leftmost == header if z == root
       else {
         leftmost = __rb_tree_node_base::minimum(x);
 	  }
-    if (rightmost == z)  
+	}
+    if (rightmost == z) {
       if (z->left == 0)         // z->right must be null also
         rightmost = z->parent;  
     // makes rightmost == header if z == root
       else {                     // x == z->left
         rightmost = __rb_tree_node_base::maximum(x);
 	  }
+	}
   }
   if (y->color != __rb_tree_red) { 
     while (x != root && (x == 0 || x->color == __rb_tree_black))
@@ -731,12 +739,13 @@ rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(const Value& v)
     x = comp ? left(x) : right(x);
   }
   iterator j = iterator(y);   
-  if (comp)
+  if (comp) {
     if (j == begin())     
       return pair<iterator,bool>(__insert(x, y, v), true);
     else {
       --j;
 	}
+  }
   if (key_compare(key(j.node), KeyOfValue()(v)))
     return pair<iterator,bool>(__insert(x, y, v), true);
   return pair<iterator,bool>(j, false);
