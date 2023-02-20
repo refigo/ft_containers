@@ -341,10 +341,10 @@ public:
     // pair<const_iterator,const_iterator> equal_range(const key_type& __k) const
     //     {return __tree_.__equal_range_unique(__k);}
 
-private:
-    typedef typename __base::__node                    __node;
-    typedef typename __base::__node_allocator          __node_allocator;
-    typedef typename __base::__node_pointer            __node_pointer;
+// private:
+    // typedef typename __base::__node                    __node;
+    // typedef typename __base::__node_allocator          __node_allocator;
+    // typedef typename __base::__node_pointer            __node_pointer;
     // typedef typename __base::__node_const_pointer      __node_const_pointer;
     // typedef typename __base::__node_base_pointer       __node_base_pointer;
     // typedef typename __base::__node_base_const_pointer __node_base_const_pointer;
