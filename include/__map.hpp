@@ -91,6 +91,15 @@ public:
   reverse_iterator rend() { return __tree_.rend(); }
   const_reverse_iterator rend() const { return __tree_.rend(); }
 
+// Capacity:
+  // empty
+  bool empty() const { return __tree_.empty(); }
+  // size
+  size_type size() const { return __tree_.size(); }
+  // max_size
+  size_type max_size() const { return __tree_.max_size(); }
+
+
 // Modifiers:
   // insert
     // single element (1)

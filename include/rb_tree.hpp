@@ -371,7 +371,7 @@ public:
     }
 
 public:
-                                // accessors:
+// accessors:
   iterator begin() { return leftmost(); }
   const_iterator begin() const { return leftmost(); }
   iterator end() { return header_; }
@@ -384,8 +384,9 @@ public:
   const_reverse_iterator rend() const {
     return const_reverse_iterator(begin());
   }
-
+  bool empty() const { return node_count_ == 0; }
   size_type size() const { return node_count_; }
+  size_type max_size() const { return size_type(-1); } // NOTE
 
 public:
                                 // insert/erase
@@ -461,7 +462,7 @@ public:
   }
 
 public:
-                                // Debugging.
+  // Debugging.
   bool __rb_verify() const;
 };
 
