@@ -66,11 +66,17 @@ public:
              , const allocator_type& __a = allocator_type())
     : __tree_(__vc(__comp), __a) {}
 
+// Iterators:
+  iterator begin() { return __tree_.begin(); }
+  const_iterator begin() const { return __tree_.begin(); }
+  iterator end() { return __tree_.end(); }
+  const_iterator end() const { return __tree_.end(); }
+
 // Modifiers:
     // insert
         // single element (1)
-    // pair<iterator, bool>
-    //     insert(const value_type& __v) {return __tree_.insert_unique(__v);}
+    pair<iterator, bool>
+        insert(const value_type& _v) {return (__tree_.insert_unique(_v));}
     
         // with hint (2)
         // range (3)

@@ -200,12 +200,67 @@ protected:
   static link_type maximum(link_type _x) {
     return (link_type) __rb_tree_node_base::maximum(_x);
   }
+protected:
+  link_type alloc_node() {
+    return (node_alloc_.allocate(1));
+  }
+  void dealloc_node(link_type _p) {
+    node_alloc_.deallocate(_p, 1);
+  }
+  link_type create_node(const value_type& _v) {
+    link_type ret = alloc_node();
+    try {
+      value_alloc_.construct(&(ret->value_field), _v);
+    }
+    catch(...) { dealloc_node(ret); throw; }
+    return ret;
+  }
 private:
+  iterator __insert(base_ptr _x, base_ptr _y, const value_type& _v) {
+    link_type to_insert = (link_type) _x;
+    link_type to_parent = (link_type) _y;
+    link_type new_node;
+
+    if (to_parent == header_ || 
+        to_insert != NULL || 
+        value_compare_(_v, value(to_parent))) {
+      // 아무 노드도 없을 때
+      // 첫번째 인자로 주소가 들어왔을 때,
+      // 새로 들어온 인자의 key가 두번째 인자보다 작을 때
+
+      // 두번째 인자의 left에 배치
+      new_node = create_node(_v);
+      left(to_parent) = new_node;
+      if (to_parent == header_) {
+        // 아무 노드도 없었을 때
+        root() = new_node;
+        rightmost() = new_node;
+      }
+      else if (to_parent == leftmost()) {
+        leftmost() = new_node;
+      }
+    }
+    else {
+      // 두번째 인자의 right에 배치
+      new_node = create_node(_v);
+      right(to_parent) = new_node;
+      if (to_parent == rightmost())
+        rightmost() = new_node;
+    }
+    parent(new_node) = to_parent;
+    left(new_node) = NULL;
+    right(new_node) = NULL;
+    // __rb_tree_rebalance(new_node, root()); // TODO:
+    ++node_count_;
+    return iterator(new_node);
+  }
+  // link_type __copy(link_type _x, link_type _p);
+  // void __erase(link_type _x);
   void __init() {
     // header_ = get_node();
-    header_ = node_alloc_.allocate(1);
+    header_ = alloc_node();
     color(header_) = __rb_tree_red;
-    root() = 0;
+    root() = NULL;
     leftmost() = header_;
     rightmost() = header_;
   }
@@ -227,6 +282,34 @@ public:
   const_iterator begin() const { return leftmost(); }
   iterator end() { return header_; }
   const_iterator end() const { return header_; }
+
+public:
+                                // insert/erase
+  pair<iterator,bool> insert_unique(const value_type& _v)
+  {
+    link_type to_parent = header_;
+    link_type to_insert = root();
+    bool comp = true;
+    while (to_insert != NULL)
+    {
+      to_parent = to_insert;
+      comp = value_compare_(_v, value(to_insert));
+      to_insert = comp ? left(to_insert) : right(to_insert);
+    }
+    iterator j = iterator(to_parent);
+    if (comp) {
+      if (j == begin()) {
+        return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
+      }
+      else {
+        --j;
+      }
+    }
+    if (value_compare_(value(j.node), _v)) {
+      return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
+    }
+    return (pair<iterator,bool>(j, false));
+  }
 
 public:
                                 // Debugging.
