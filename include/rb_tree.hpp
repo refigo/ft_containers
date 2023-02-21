@@ -172,7 +172,7 @@ protected:
 protected:
   size_type       node_count_; // keeps track of size of tree
   link_type       header_;
-  Compare         key_compare_;
+  Compare         value_compare_;
   allocator_type  value_alloc_;
   node_allocator  node_alloc_;
 
@@ -216,7 +216,7 @@ public:
         , const node_allocator _node_alloc = node_allocator() )
       : node_count_(0)
       , header_(NULL)
-      , key_compare_(_comp)
+      , value_compare_(_comp)
       , value_alloc_(_alloc)
       , node_alloc_(_node_alloc)
   { __init(); }
@@ -233,6 +233,19 @@ public:
   bool __rb_verify() const;
 };
 
+inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root)
+{
+  if (_node == 0)
+    return 0;
+  else {
+    int bc = _node->color == __rb_tree_black ? 1 : 0;
+    if (_node == _root)
+      return bc;
+    else
+      return bc + __black_count(_node->parent, _root);
+  }
+}
+
 template <class Key, class Value, class KeyOfValue, class Compare, class Allocator>
 bool
 rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
@@ -240,7 +253,31 @@ rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
   if (node_count_ == 0 || begin() == end())
     return node_count_ == 0 && begin() == end() &&
       header_->left == header_ && header_->right == header_;
-  
+
+  int len = __black_count(leftmost(), root());
+  for (const_iterator it = begin(); it != end(); ++it) {
+    link_type x = (link_type) it.node;
+    link_type L = left(x);
+    link_type R = right(x);
+
+    if (x->color == __rb_tree_red)
+      if ((L && L->color == __rb_tree_red) ||
+          (R && R->color == __rb_tree_red))
+        return false;
+    
+    if (L && value_compare_(value(x), value(L)))
+      return false;
+    if (L && value_compare_(value(R), value(x)))
+      return false;
+    
+    if (!L && !R && __black_count(x, root()) != len)
+      return false;
+  }
+
+  if (leftmost() != __rb_tree_node_base::minimum(root()))
+    return false;
+  if (rightmost() != __rb_tree_node_base::maximum(root()))
+    return false;
   
   return true;
 }
