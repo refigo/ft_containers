@@ -99,6 +99,11 @@ public:
   // max_size
   size_type max_size() const { return __tree_.max_size(); }
 
+// Element access:
+  // operator[]
+  _Tp& operator[](const key_type& _k) {
+    return ((*((insert(value_type(_k, _Tp()))).first)).second);
+  }
 
 // Modifiers:
   // insert
