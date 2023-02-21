@@ -81,7 +81,7 @@ public:
     // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
 
 public:
-  bool test() {return (__tree_.__rb_verify()); }
+  bool test_rb_tree() {return (__tree_.__rb_verify()); }
 };
 
 } // namespace ft

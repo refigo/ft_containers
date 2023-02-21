@@ -222,6 +222,13 @@ public:
   { __init(); }
 
 public:
+                                // accessors:
+  iterator begin() { return leftmost(); }
+  const_iterator begin() const { return leftmost(); }
+  iterator end() { return header_; }
+  const_iterator end() const { return header_; }
+
+public:
                                 // Debugging.
   bool __rb_verify() const;
 };
@@ -230,6 +237,11 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Allocat
 bool
 rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
 {
+  if (node_count_ == 0 || begin() == end())
+    return node_count_ == 0 && begin() == end() &&
+      header_->left == header_ && header_->right == header_;
+  
+  
   return true;
 }
 
