@@ -86,6 +86,10 @@ public:
   const_iterator begin() const { return __tree_.begin(); }
   iterator end() { return __tree_.end(); }
   const_iterator end() const { return __tree_.end(); }
+  reverse_iterator rbegin() { return __tree_.rbegin(); }
+  const_reverse_iterator rbegin() const { return __tree_.rbegin(); }
+  reverse_iterator rend() { return __tree_.rend(); }
+  const_reverse_iterator rend() const { return __tree_.rend(); }
 
 // Modifiers:
   // insert
