@@ -135,6 +135,75 @@ inline bool operator!=(const __rb_tree_base_iterator& x,
   return x.node != y.node;
 }
 
+
+template <class Key, class Value, class KeyOfValue, class Compare,
+          class Allocator = std::allocator<Value> >
+class rb_tree {
+public:
+  typedef Key                                           key_type;
+	typedef Value                                      		value_type;
+  typedef Compare                                 			value_compare;
+  typedef Allocator                               			allocator_type;
+  typedef typename allocator_type::pointer         			pointer;
+  typedef typename allocator_type::const_pointer   			const_pointer;
+  typedef typename allocator_type::size_type       			size_type;
+  typedef typename allocator_type::difference_type 			difference_type;
+	typedef	typename allocator_type::reference            reference;
+	typedef	typename allocator_type::const_reference      const_reference;
+  // typedef value_type* pointer;
+  // typedef const value_type* const_pointer;
+  // typedef value_type& reference;
+  // typedef const value_type& const_reference;
+  // typedef size_t size_type;
+  // typedef ptrdiff_t difference_type;
+  typedef __rb_tree_iterator<value_type, reference, pointer>              iterator;
+  typedef __rb_tree_iterator<value_type, const_reference, const_pointer>  const_iterator;
+  typedef reverse_iterator<const_iterator>                                const_reverse_iterator;
+  typedef reverse_iterator<iterator>                                      reverse_iterator;
+protected:
+  typedef void*                                                           void_pointer;
+  typedef __rb_tree_node_base*                                            base_ptr;
+  typedef __rb_tree_node<Value>                                           rb_tree_node;
+  typedef __rb_tree_color_type                                            color_type;
+  typedef	typename allocator_type::template rebind<rb_tree_node>::other   node_allocator;
+// public:
+  typedef rb_tree_node*                                                   link_type; // NOTE: to public?
+
+protected:
+  size_type   node_count_; // keeps track of size of tree
+  link_type   header_;
+  Compare     compare_;
+
+  link_type& root() const { return (link_type&) header_->parent; }
+  link_type& leftmost() const { return (link_type&) header_->left; }
+  link_type& rightmost() const { return (link_type&) header_->right; }
+
+  static link_type& left(link_type _x) { return (link_type&)(_x->left); }
+  static link_type& right(link_type _x) { return (link_type&)(_x->right); }
+  static link_type& parent(link_type _x) { return (link_type&)(_x->parent); }
+  static reference value(link_type _x) { return _x->value_field; }
+  static const Key& key(link_type _x) { return KeyOfValue()(value(_x)); }
+  static color_type& color(link_type _x) { return (color_type&)(_x->color); }
+
+  static link_type& left(base_ptr _x) { return (link_type&)(_x->left); }
+  static link_type& right(base_ptr _x) { return (link_type&)(_x->right); }
+  static link_type& parent(base_ptr _x) { return (link_type&)(_x->parent); }
+  static reference value(base_ptr _x) { return ((link_type)_x)->value_field; }
+  static const Key& key(base_ptr _x) { return KeyOfValue()(value(link_type(_x)));} 
+  static color_type& color(base_ptr _x) { return (color_type&)(link_type(_x)->color); }
+
+  static link_type minimum(link_type _x) { 
+    return (link_type)  __rb_tree_node_base::minimum(_x);
+  }
+  static link_type maximum(link_type _x) {
+    return (link_type) __rb_tree_node_base::maximum(_x);
+  }
+
+public:
+                                // Debugging.
+  bool __rb_verify() const;
+};
+
 } // namespace ft
 
 
