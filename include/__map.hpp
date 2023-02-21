@@ -1,12 +1,10 @@
 #ifndef __MGO_MAP_HPP_
 #define __MGO_MAP_HPP_
 
-#include "__functional_base.hpp"
 #include "pair.hpp"
 #include "iterator.hpp"
-
-// #include "__rb_tree.hpp"
 #include "rb_tree.hpp"
+#include "__utils.hpp"
 
 #include <memory>
 
@@ -40,10 +38,10 @@ public:
 
 private:
     typedef ft::pair<key_type, mapped_type>				__value_type;
-    typedef value_compare													__vc;
+    // typedef value_compare													__vc;
     typedef _Allocator														__allocator_type;
     typedef ft::rb_tree<key_type, value_type, 
-            key_type, __vc, __allocator_type>			__base;
+            ft::select1st<value_type>, key_compare, __allocator_type>			__base;
     __base __tree_;
 
 public:
@@ -64,13 +62,13 @@ public:
   // empty (1)
   explicit map(const key_compare& _comp = key_compare()
              , const allocator_type& _alloc = allocator_type())
-    : __tree_(__vc(_comp), _alloc) {}
+    : __tree_(_comp, _alloc) {}
   // range (2)
   template <class InputIterator>
   map (InputIterator _first, InputIterator _last,
        const key_compare& _comp = key_compare(),
        const allocator_type& _alloc = allocator_type())
-    : __tree_(__vc(_comp), _alloc) { __tree_.insert_unique(_first, _last); }
+    : __tree_(_comp, _alloc) { __tree_.insert_unique(_first, _last); }
   // copy (3)
   map (const map<_Key, _Tp, _Compare, _Allocator>& _x) : __tree_(_x.__tree_) {}
   // operator=
@@ -119,6 +117,12 @@ public:
   void insert(InputIterator _first, InputIterator _last) {
     __tree_.insert_unique(_first, _last);
   }
+  // erase
+  void erase(iterator _position) { __tree_.erase(_position); }
+  size_type erase(const key_type& _x) { return __tree_.erase(_x); }
+  void erase(iterator _first, iterator _last) { __tree_.erase(_first, _last); }
+
+  // swap
 
   // clear
   void clear() { __tree_.clear(); }

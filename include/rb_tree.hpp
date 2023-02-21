@@ -142,7 +142,7 @@ class rb_tree {
 public:
   typedef Key                                           key_type;
 	typedef Value                                      		value_type;
-  typedef Compare                                 			value_compare;
+  typedef Compare                                 			key_compare;
   typedef Allocator                               			allocator_type;
   typedef typename allocator_type::pointer         			pointer;
   typedef typename allocator_type::const_pointer   			const_pointer;
@@ -172,7 +172,7 @@ protected:
 protected:
   size_type       node_count_; // keeps track of size of tree
   link_type       header_;
-  Compare         value_compare_;
+  Compare         key_compare_;
   allocator_type  value_alloc_;
   node_allocator  node_alloc_;
 
@@ -238,7 +238,7 @@ private:
 
     if (to_parent == header_ || 
         to_right_if_null != NULL || 
-        value_compare_(_v, value(to_parent))) {
+        key_compare_(KeyOfValue()(_v), key(to_parent))) {
       // 아무 노드도 없을 때
       // 첫번째 인자로 주소가 들어왔을 때,
       // 새로 들어온 인자의 key가 두번째 인자보다 작을 때
@@ -294,6 +294,7 @@ private:
     return top;
   }
 
+  // erase all
   // erase without rebalancing
   void __erase(link_type _x) {
     while (_x != NULL) {
@@ -319,13 +320,13 @@ public:
         , const node_allocator _node_alloc = node_allocator() )
       : node_count_(0)
       , header_(NULL)
-      , value_compare_(_comp)
+      , key_compare_(_comp)
       , value_alloc_(_alloc)
       , node_alloc_(_node_alloc)
   { __init(); }
   
   rb_tree(const rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _x)
-    : node_count_(0), value_compare_(_x.value_compare_) {
+    : node_count_(0), key_compare_(_x.key_compare_) {
       header_ = alloc_node();
       color(header_) = __rb_tree_red;
       if (_x.root() == NULL) {
@@ -354,7 +355,7 @@ public:
       if (this != &_x) {
         clear();
         node_count_ = 0;
-        value_compare_ = _x.value_compare_;
+        key_compare_ = _x.key_compare_;
         if (_x.root() == NULL) {
           root() = NULL;
           leftmost() = header_;
@@ -398,7 +399,7 @@ public:
     while (to_insert != NULL)
     {
       to_parent = to_insert;
-      comp = value_compare_(_v, value(to_insert));
+      comp = key_compare_(KeyOfValue()(_v), key(to_insert));
       to_insert = comp ? left(to_insert) : right(to_insert);
     }
     iterator to_check = iterator(to_parent);
@@ -411,7 +412,7 @@ public:
         --to_check;
       }
     }
-    if (value_compare_(value(to_check.node), _v)) {
+    if (key_compare_(key(to_check.node), KeyOfValue()(_v))) {
       return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
     }
     // 이미 같은 key가 있는 경우
@@ -420,14 +421,14 @@ public:
   iterator insert_unique(iterator _position, const value_type& _v) {
     if (_position.node == header_->left) {
       // begin()
-      if (size() > 0 && value_compare_(_v, value(_position.node)))
+      if (size() > 0 && key_compare_(KeyOfValue()(_v), key(_position.node)))
         return __insert(_position.node, _position.node, _v);
       else
         return (insert_unique(_v).first);
     }
     else if (_position.node == header_) {
       // end()
-      if (value_compare_(value(rightmost()), _v))
+      if (key_compare_(key(rightmost()), KeyOfValue()(_v)))
         return __insert(NULL, rightmost(), _v);
       else
         return (insert_unique(_v).first);
@@ -435,8 +436,8 @@ public:
     else {
       iterator before = _position;
       --before;
-      if (value_compare_(value(before.node), _v)
-          && value_compare_(_v, value(_position.node))) {
+      if (key_compare_(key(before.node), KeyOfValue()(_v))
+          && key_compare_(KeyOfValue()(_v), key(_position.node))) {
         if (right(before.node) == NULL)
           return __insert(NULL, before.node, _v);
         else
@@ -450,7 +451,27 @@ public:
       insert_unique(*_first);
   }
 
-  // erase()
+  void erase(iterator _position) {
+    (void)_position;
+    // TODO: rebalancing
+    // link_type y = (link_type) __rb_tree_rebalance_for_erase(_position.node,
+    //                                                         header->parent,
+    //                                                         header->left,
+    //                                                         header->right);
+    // destroy_node(y);
+    --node_count_;
+  }
+  size_type erase(const key_type& _x) {
+    pair<iterator,iterator> p = equal_range(_x);
+    size_type n = 0;
+    distance(p.first, p.second, n);
+    erase(p.first, p.second);
+    return n;
+  }
+  void erase(iterator _first, iterator _last) {
+    while (_first != _last) erase(*_first++);
+  }
+  // void erase(const key_type* _first, const key_type* _last);
   void clear() {
     if (node_count_ != 0) {
       __erase(root());
@@ -459,6 +480,27 @@ public:
       rightmost() = header_;
       node_count_ = 0;
     }
+  }
+
+public:
+  // set operations:
+  iterator find(const key_type& _k);
+  const_iterator find(const key_type& _x) const;
+  size_type count(const key_type& _k) const {
+    ft::pair<const_iterator, const_iterator> p = equal_range(_k);
+    size_type n = 0;
+    distance(p.first, p.second, n);
+    return n;
+  }
+  iterator lower_bound(const key_type& _x);
+  const_iterator lower_bound(const key_type& _x) const;
+  iterator upper_bound(const key_type& _x);
+  const_iterator upper_bound(const key_type& _x) const;
+  ft::pair<iterator,iterator> equal_range(const key_type& _k) {
+    return ft::pair<iterator,iterator>(lower_bound(_k), upper_bound(_k));
+  }
+  ft::pair<const_iterator,const_iterator> equal_range(const key_type& _k) const {
+    return ft::pair<const_iterator,const_iterator>(lower_bound(_k), upper_bound(_k));
   }
 
 public:
@@ -498,9 +540,9 @@ rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
           (R && R->color == __rb_tree_red))
         return false;
     
-    if (L && value_compare_(value(x), value(L)))
+    if (L && key_compare_(key(x), key(L)))
       return false;
-    if (L && value_compare_(value(R), value(x)))
+    if (L && key_compare_(key(R), key(x)))
       return false;
     
     if (!L && !R && __black_count(x, root()) != len)
