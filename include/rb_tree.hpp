@@ -344,6 +344,32 @@ public:
       node_count_ = _x.node_count_;
     }
 
+    ~rb_tree() {
+      clear();
+      dealloc_node(header_);
+    }
+
+    rb_tree<Key, Value, KeyOfValue, Compare, Allocator>&
+    operator=(const rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _x) {
+      if (this != &_x) {
+        clear();
+        node_count_ = 0;
+        value_compare_ = _x.value_compare_;
+        if (_x.root() == NULL) {
+          root() = NULL;
+          leftmost() = header_;
+          rightmost() = header_;
+        }
+        else {
+          root() = __copy(_x.root(), header_);
+          leftmost() = minimum(root());
+          rightmost() = maximum(root());
+          node_count_ = _x.node_count_;
+        }
+      }
+      return *this;
+    }
+
 public:
                                 // accessors:
   iterator begin() { return leftmost(); }
@@ -413,6 +439,17 @@ public:
   void insert_unique(InputIterator _first, InputIterator _last) {
     for ( ; _first != _last; ++_first)
       insert_unique(*_first);
+  }
+
+  // erase()
+  void clear() {
+    if (node_count_ != 0) {
+      __erase(root());
+      leftmost() = header_;
+      root() = NULL;
+      rightmost() = header_;
+      node_count_ = 0;
+    }
   }
 
 public:

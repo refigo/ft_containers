@@ -80,6 +80,7 @@ public:
     return *this;
   }
 
+
 // Iterators:
   iterator begin() { return __tree_.begin(); }
   const_iterator begin() const { return __tree_.begin(); }
@@ -100,6 +101,9 @@ public:
   void insert(InputIterator _first, InputIterator _last) {
     __tree_.insert_unique(_first, _last);
   }
+
+  // clear
+  void clear() { __tree_.clear(); }
 
 // Operations:
     // find
