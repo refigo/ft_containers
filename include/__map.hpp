@@ -82,6 +82,10 @@ public:
     return (__tree_.insert_unique(_position, _v));
   }
     // range (3)
+  template <class InputIterator>
+  void insert(InputIterator _first, InputIterator _last) {
+    __tree_.insert_unique(_first, _last);
+  }
 
 // Operations:
     // find

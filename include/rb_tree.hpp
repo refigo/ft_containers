@@ -340,7 +340,11 @@ public:
           return __insert(_position.node, _position.node, _v);
       }
     }
-
+  }
+  template <class InputIterator>
+  void insert_unique(InputIterator _first, InputIterator _last) {
+    for ( ; _first != _last; ++_first)
+      insert_unique(*_first);
   }
 
 public:
