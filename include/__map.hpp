@@ -71,6 +71,14 @@ public:
        const key_compare& _comp = key_compare(),
        const allocator_type& _alloc = allocator_type())
     : __tree_(__vc(_comp), _alloc) { __tree_.insert_unique(_first, _last); }
+  // copy (3)
+  map (const map<_Key, _Tp, _Compare, _Allocator>& _x) : __tree_(_x.__tree_) {}
+  // operator=
+  map<_Key, _Tp, _Compare, _Allocator>&
+  operator=(const map<_Key, _Tp, _Compare, _Allocator>& _x) {
+    __tree_ = _x.__tree_;
+    return *this;
+  }
 
 // Iterators:
   iterator begin() { return __tree_.begin(); }

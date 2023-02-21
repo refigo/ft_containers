@@ -207,6 +207,7 @@ protected:
   void dealloc_node(link_type _p) {
     node_alloc_.deallocate(_p, 1);
   }
+
   link_type create_node(const value_type& _v) {
     link_type ret = alloc_node();
     try {
@@ -215,6 +216,20 @@ protected:
     catch(...) { dealloc_node(ret); throw; }
     return ret;
   }
+
+  link_type clone_node(link_type _x) {
+    link_type ret = create_node(_x->value_field);
+    ret->color = _x->color;
+    ret->left = NULL;
+    ret->right = NULL;
+    return ret;
+  }
+
+  void destroy_node(link_type _p) {
+    value_alloc_.destroy(&(_p->value_field));
+    dealloc_node(_p);
+  }
+
 private:
   iterator __insert(base_ptr _x, base_ptr _y, const value_type& _v) {
     link_type to_right_if_null = (link_type) _x;
@@ -254,8 +269,41 @@ private:
     ++node_count_;
     return iterator(new_node);
   }
-  // link_type __copy(link_type _x, link_type _p);
-  // void __erase(link_type _x);
+  link_type __copy(link_type _x, link_type _p) {
+    link_type top = clone_node(_x);
+    top->parent = _p;
+
+    try {
+      // 오른쪽부터 차례대로 채워감
+      if (_x->right)
+        top->right = __copy(right(_x), top);
+      _p = top;
+      _x = left(_x);
+
+      while (_x != NULL) {
+        link_type tmp = clone_node(_x);
+        _p->left = tmp;
+        tmp->parent = _p;
+        if (_x->right)
+          tmp->right = __copy(right(_x), tmp);
+        _p = tmp;
+        _x = left(_x);
+      }
+    }
+    catch(...) { __erase(top); throw; }
+    return top;
+  }
+
+  // erase without rebalancing
+  void __erase(link_type _x) {
+    while (_x != NULL) {
+      __erase(right(_x));
+      link_type tmp = left(_x);
+      destroy_node(_x);
+      _x = tmp;
+    }
+  }
+
   void __init() {
     // header_ = get_node();
     header_ = alloc_node();
@@ -275,6 +323,26 @@ public:
       , value_alloc_(_alloc)
       , node_alloc_(_node_alloc)
   { __init(); }
+  
+  rb_tree(const rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _x)
+    : node_count_(0), value_compare_(_x.value_compare_) {
+      header_ = alloc_node();
+      color(header_) = __rb_tree_red;
+      if (_x.root() == NULL) {
+        root() = NULL;
+        leftmost() = header_;
+        rightmost() = header_;
+      }
+      else {
+        try {
+          root() = __copy(_x.root(), header_);
+        }
+        catch (...) { dealloc_node(header_); throw; }
+        leftmost() = minimum(root());
+        rightmost() = maximum(root());
+      }
+      node_count_ = _x.node_count_;
+    }
 
 public:
                                 // accessors:
