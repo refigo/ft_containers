@@ -170,9 +170,11 @@ protected:
   typedef rb_tree_node*                                                   link_type; // NOTE: to public?
 
 protected:
-  size_type   node_count_; // keeps track of size of tree
-  link_type   header_;
-  Compare     compare_;
+  size_type       node_count_; // keeps track of size of tree
+  link_type       header_;
+  Compare         key_compare_;
+  allocator_type  value_alloc_;
+  node_allocator  node_alloc_;
 
   link_type& root() const { return (link_type&) header_->parent; }
   link_type& leftmost() const { return (link_type&) header_->left; }
@@ -198,11 +200,33 @@ protected:
   static link_type maximum(link_type _x) {
     return (link_type) __rb_tree_node_base::maximum(_x);
   }
+private:
+  void __init() {
+    // header_ = get_node();
+    header_ = node_alloc_.allocate(1);
+    color(header_) = __rb_tree_red;
+    root() = 0;
+    leftmost() = header_;
+    rightmost() = header_;
+  }
+public:
+// (Constructor)
+  rb_tree(const Compare& _comp = Compare()
+    , const allocator_type _alloc = Allocator()
+    , const node_allocator _node_alloc = node_allocator() )
+      : node_count_(0)
+      , header_(NULL)
+      , key_compare_(_comp)
+      , value_alloc_(_alloc)
+      , node_alloc_(_node_alloc) { __init(); }
+
 
 public:
                                 // Debugging.
   bool __rb_verify() const;
 };
+
+
 
 } // namespace ft
 
