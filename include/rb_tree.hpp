@@ -212,24 +212,27 @@ private:
 public:
 // (Constructor)
   rb_tree(const Compare& _comp = Compare()
-    , const allocator_type _alloc = Allocator()
-    , const node_allocator _node_alloc = node_allocator() )
+        , const allocator_type _alloc = Allocator()
+        , const node_allocator _node_alloc = node_allocator() )
       : node_count_(0)
       , header_(NULL)
       , key_compare_(_comp)
       , value_alloc_(_alloc)
-      , node_alloc_(_node_alloc) { __init(); }
-
+      , node_alloc_(_node_alloc)
+  { __init(); }
 
 public:
                                 // Debugging.
   bool __rb_verify() const;
 };
 
-
+template <class Key, class Value, class KeyOfValue, class Compare, class Allocator>
+bool
+rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
+{
+  return true;
+}
 
 } // namespace ft
-
-
 
 #endif /* MGO_RB_TREE__ */

@@ -22,7 +22,7 @@ class map
 public:
     typedef _Key                                     	key_type;
     typedef _Tp                                      	mapped_type;
-    typedef ft::pair<const key_type, mapped_type>		value_type;
+    typedef ft::pair<const key_type, mapped_type>		  value_type;
     typedef _Compare                                 	key_compare;
 
     class value_compare
@@ -39,32 +39,32 @@ public:
     };
 
 private:
-    typedef ft::pair<key_type, mapped_type>									__value_type;
+    typedef ft::pair<key_type, mapped_type>				__value_type;
     typedef value_compare													__vc;
     typedef _Allocator														__allocator_type;
     typedef ft::rb_tree<key_type, value_type, 
-						key_type, __vc, __allocator_type>					__base;
+            key_type, __vc, __allocator_type>			__base;
     __base __tree_;
 
 public:
-    typedef _Allocator                               	allocator_type;
-	typedef typename __base::pointer					pointer;
-	typedef typename __base::const_pointer 				const_pointer;
-	typedef typename __base::reference					reference;
-	typedef typename __base::const_reference			const_reference;
-	typedef typename __base::iterator					iterator;
-	typedef typename __base::const_iterator				const_iterator;
-	typedef typename __base::reverse_iterator			reverse_iterator;
-	typedef typename __base::const_reverse_iterator		const_reverse_iterator;
-	typedef typename __base::size_type					size_type;
-	typedef typename __base::difference_type			difference_type;
+    typedef _Allocator                              allocator_type;
+  typedef typename __base::pointer					        pointer;
+  typedef typename __base::const_pointer 				    const_pointer;
+  typedef typename __base::reference					      reference;
+  typedef typename __base::const_reference			    const_reference;
+  typedef typename __base::iterator					        iterator;
+  typedef typename __base::const_iterator				    const_iterator;
+  typedef typename __base::reverse_iterator			    reverse_iterator;
+  typedef typename __base::const_reverse_iterator		const_reverse_iterator;
+  typedef typename __base::size_type					      size_type;
+  typedef typename __base::difference_type			    difference_type;
 
 public:
 // (Constructor)
-    // empty (1)
-    explicit map(const key_compare& __comp = key_compare(), 
-                    const allocator_type& __a = allocator_type())
-        : __tree_(__vc(__comp), __a) {}
+  // empty (1)
+  explicit map(const key_compare& __comp = key_compare()
+             , const allocator_type& __a = allocator_type())
+    : __tree_(__vc(__comp), __a) {}
 
 // Modifiers:
     // insert
@@ -80,6 +80,8 @@ public:
     // iterator find(const key_type& __k)             {return __tree_.find(__k);}
     // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
 
+public:
+  bool test() {return (__tree_.__rb_verify()); }
 };
 
 } // namespace ft
