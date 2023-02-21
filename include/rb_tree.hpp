@@ -217,12 +217,12 @@ protected:
   }
 private:
   iterator __insert(base_ptr _x, base_ptr _y, const value_type& _v) {
-    link_type to_insert = (link_type) _x;
+    link_type to_right_if_null = (link_type) _x;
     link_type to_parent = (link_type) _y;
     link_type new_node;
 
     if (to_parent == header_ || 
-        to_insert != NULL || 
+        to_right_if_null != NULL || 
         value_compare_(_v, value(to_parent))) {
       // 아무 노드도 없을 때
       // 첫번째 인자로 주소가 들어왔을 때,
@@ -283,6 +283,8 @@ public:
   iterator end() { return header_; }
   const_iterator end() const { return header_; }
 
+  size_type size() const { return node_count_; }
+
 public:
                                 // insert/erase
   pair<iterator,bool> insert_unique(const value_type& _v)
@@ -296,19 +298,49 @@ public:
       comp = value_compare_(_v, value(to_insert));
       to_insert = comp ? left(to_insert) : right(to_insert);
     }
-    iterator j = iterator(to_parent);
+    iterator to_check = iterator(to_parent);
     if (comp) {
-      if (j == begin()) {
+      // value가 to_parent 보다 작은 경우
+      if (to_check == begin()) {
         return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
       }
       else {
-        --j;
+        --to_check;
       }
     }
-    if (value_compare_(value(j.node), _v)) {
+    if (value_compare_(value(to_check.node), _v)) {
       return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
     }
-    return (pair<iterator,bool>(j, false));
+    // 이미 같은 key가 있는 경우
+    return (pair<iterator,bool>(to_check, false));
+  }
+  iterator insert_unique(iterator _position, const value_type& _v) {
+    if (_position.node == header_->left) {
+      // begin()
+      if (size() > 0 && value_compare_(_v, value(_position.node)))
+        return __insert(_position.node, _position.node, _v);
+      else
+        return (insert_unique(_v).first);
+    }
+    else if (_position.node == header_) {
+      // end()
+      if (value_compare_(value(rightmost()), _v))
+        return __insert(NULL, rightmost(), _v);
+      else
+        return (insert_unique(_v).first);
+    }
+    else {
+      iterator before = _position;
+      --before;
+      if (value_compare_(value(before.node), _v)
+          && value_compare_(_v, value(_position.node))) {
+        if (right(before.node) == NULL)
+          return __insert(NULL, before.node, _v);
+        else
+          return __insert(_position.node, _position.node, _v);
+      }
+    }
+
   }
 
 public:

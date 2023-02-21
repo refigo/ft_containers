@@ -73,13 +73,15 @@ public:
   const_iterator end() const { return __tree_.end(); }
 
 // Modifiers:
-    // insert
-        // single element (1)
-    pair<iterator, bool>
-        insert(const value_type& _v) {return (__tree_.insert_unique(_v));}
-    
-        // with hint (2)
-        // range (3)
+  // insert
+    // single element (1)
+  pair<iterator, bool>
+    insert(const value_type& _v) {return (__tree_.insert_unique(_v));}
+    // with hint (2)
+  iterator insert(iterator _position, const value_type& _v) {
+    return (__tree_.insert_unique(_position, _v));
+  }
+    // range (3)
 
 // Operations:
     // find
