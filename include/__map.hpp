@@ -62,9 +62,15 @@ public:
 public:
 // (Constructor)
   // empty (1)
-  explicit map(const key_compare& __comp = key_compare()
-             , const allocator_type& __a = allocator_type())
-    : __tree_(__vc(__comp), __a) {}
+  explicit map(const key_compare& _comp = key_compare()
+             , const allocator_type& _alloc = allocator_type())
+    : __tree_(__vc(_comp), _alloc) {}
+  // range (2)
+  template <class InputIterator>
+  map (InputIterator _first, InputIterator _last,
+       const key_compare& _comp = key_compare(),
+       const allocator_type& _alloc = allocator_type())
+    : __tree_(__vc(_comp), _alloc) { __tree_.insert_unique(_first, _last); }
 
 // Iterators:
   iterator begin() { return __tree_.begin(); }
