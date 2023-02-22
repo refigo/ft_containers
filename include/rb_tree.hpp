@@ -135,6 +135,43 @@ inline bool operator!=(const __rb_tree_base_iterator& x,
   return x.node != y.node;
 }
 
+// __rb_tree_rotate
+
+inline void
+__rb_tree_rotate_left(__rb_tree_node_base* _target, __rb_tree_node_base*& _root) {
+  __rb_tree_node_base* substitute = _target->right;
+  _target->right = substitute->left;
+  if (substitute->left != NULL)
+    substitute->left->parent = _target;
+  substitute->parent = _target->parent;
+
+  if (_target == _root)
+    _root = substitute;
+  else if (_target == _target->parent->left)
+    _target->parent->left = substitute;
+  else
+    _target->parent->right = substitute;
+  substitute->left = _target;
+  _target->parent = substitute;
+}
+
+inline void
+__rb_tree_rotate_right(__rb_tree_node_base* _target, __rb_tree_node_base*& _root) {
+  __rb_tree_node_base* substitute = _target->left;
+  _target->left = substitute->right;
+  if (substitute->right != NULL)
+    substitute->right->parent = _target;
+  substitute->parent = _target->parent;
+
+  if (_target == _root)
+    _root = substitute;
+  else if (_target == _target->parent->right)
+    _target->parent->right = substitute;
+  else
+    _target->parent->left = substitute;
+  substitute->right = _target;
+  _target->parent = substitute;
+}
 
 template <class Key, class Value, class KeyOfValue, class Compare,
           class Allocator = std::allocator<Value> >
