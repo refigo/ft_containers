@@ -176,7 +176,7 @@ __rb_tree_rotate_right(__rb_tree_node_base* _target, __rb_tree_node_base*& _root
 // __rb_tree_rebalance
 
 inline void
-__rb_tree_rebalance_after_insertion(__rb_tree_node_base* _inserted, 
+__rb_tree_rebalance_when_insertion(__rb_tree_node_base* _inserted, 
                                     __rb_tree_node_base*& _root) {
   _inserted->color = __rb_tree_red;
   while ((_inserted != _root) && (_inserted->parent->color == __rb_tree_red)) {
@@ -228,6 +228,168 @@ __rb_tree_rebalance_after_insertion(__rb_tree_node_base* _inserted,
     }
   }
   _root->color = __rb_tree_black;
+}
+
+inline __rb_tree_node_base*
+__rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
+                                    __rb_tree_node_base*& _root,
+                                    __rb_tree_node_base*& _leftmost,
+                                    __rb_tree_node_base*& _rightmost) {
+  __rb_tree_node_base* del_node =_to_delete;
+  __rb_tree_node_base* next = NULL;
+  __rb_tree_node_base* next_parent = NULL;
+
+  // Finding the real node to delete
+  if (del_node->left == NULL) {
+    // When no both children are 
+      // or only one right child is.
+    next = del_node->right; // null or node
+  }
+  else {
+    if (del_node->right == NULL) {
+      // When only one left child is.
+      next = del_node->left; // node
+    }
+    else {
+      // When both children are.
+      // Finding successor. -> del_node
+      del_node = del_node->right;
+      while (del_node->left != NULL)
+        del_node = del_node->left;
+      next = del_node->right;
+    }
+  }
+
+  // 링크관계 변경 작업: Modifying node linking
+  if (del_node != _to_delete) {
+    // When del_node is _to_delete's successor
+      // _to_delete에 대한 링크관계를 del_node로 대체하는 작업
+    _to_delete->left->parent = del_node;
+    del_node->left = _to_delete->left;
+    if (del_node != _to_delete->right) {
+      // When del_node is not direct right child.
+      next_parent = del_node->parent;
+      if (next) next->parent = del_node->parent;
+      del_node->parent->left = next;
+      del_node->right = _to_delete->right;
+      _to_delete->right->parent = del_node;
+    }
+    else {
+      next_parent = del_node;
+    }
+    if (_root == _to_delete)
+      _root = del_node;
+    else if (_to_delete->parent->left == _to_delete)
+      _to_delete->parent->left = del_node;
+    else
+      _to_delete->parent->right = del_node;
+    del_node->parent = _to_delete->parent;
+    ft::swap(del_node->color, _to_delete->color);
+    del_node = _to_delete; // del_node now points to node to be actually deleted
+  }
+  else {
+    // When del_node is _to_delete
+    next_parent = del_node->parent;
+    if (next) next->parent = del_node->parent;
+    if (_root == _to_delete) {
+      _root = next;
+    }
+    else { // parent 간의 링크관계 작업
+      if (_to_delete->parent->left == _to_delete)
+        _to_delete->parent->left = next;
+      else
+        _to_delete->parent->right = next;
+    }
+    if (_leftmost == _to_delete) { // leftmost 변경 작업
+      if (_to_delete->right == NULL)
+        _leftmost = _to_delete->parent;
+      else
+        _leftmost = __rb_tree_node_base::minimum(next);
+    }
+    if (_rightmost == _to_delete) { // rightmost 변경 작업
+      if (_to_delete->left == NULL)
+        _rightmost = _to_delete->parent;
+      else
+        _rightmost = __rb_tree_node_base::maximum(next);
+    }
+  }
+
+  // rebalancing
+  if (del_node->color != __rb_tree_red) { // Getting Extra-Black
+    while (next != _root && (next == NULL || next->color == __rb_tree_black)) {
+      // When Doubly-Black
+      if (next == next_parent->left) {
+        // left
+        __rb_tree_node_base* sibling = next_parent->right;
+        if (sibling->color == __rb_tree_red) {
+          // case 1
+          sibling->color = __rb_tree_black;
+          next_parent->color = __rb_tree_red;
+          __rb_tree_rotate_left(next_parent, _root);
+          sibling = next_parent->right;
+        }
+        if ((sibling->left == NULL || sibling->left->color == __rb_tree_black) &&
+            (sibling->right == NULL || sibling->right->color == __rb_tree_black)) {
+          // case 2
+            // trick: switching color to bubble up extra-black
+          sibling->color = __rb_tree_red;
+          next = next_parent;
+          next_parent = next_parent->parent;
+        }
+        else {
+          if (sibling->right == NULL || sibling->right->color == __rb_tree_black) {
+            // case 3
+            if (sibling->left) sibling->left->color = __rb_tree_black; // NOTE: if문이 있을 이유가 있나? red node가 없는 경우도 있는건가?
+            sibling->color = __rb_tree_red;
+            __rb_tree_rotate_right(sibling, _root);
+            sibling = next_parent->right;
+          }
+          // case 4
+          sibling->color = next_parent->color;
+          next_parent->color = __rb_tree_black;
+          if (sibling->right) sibling->right->color = __rb_tree_black; // NOTE: if문이 있을 이유가 있나? red node가 없는 경우도 있는건가?
+          __rb_tree_rotate_left(next_parent, _root);
+          break;
+        }
+      }
+      else {
+        // right
+        __rb_tree_node_base* sibling = next_parent->left;
+        if (sibling->color == __rb_tree_red) {
+          // case 1
+          sibling->color = __rb_tree_black;
+          next_parent->color = __rb_tree_red;
+          __rb_tree_rotate_right(next_parent, _root);
+          sibling = next_parent->left;
+        }
+        if ((sibling->right == NULL || sibling->right->color == __rb_tree_black) &&
+            (sibling->left == NULL || sibling->left->color == __rb_tree_black)) {
+          // case 2
+            // trick: switching color to bubble up extra-black
+          sibling->color = __rb_tree_red;
+          next = next_parent;
+          next_parent = next_parent->parent;
+        }
+        else {
+          if (sibling->left == NULL || sibling->left->color == __rb_tree_black) {
+            // case 3
+            if (sibling->right) sibling->right->color = __rb_tree_black; // NOTE: if문이 있을 이유가 있나? red node가 없는 경우도 있는건가?
+            sibling->color = __rb_tree_red;
+            __rb_tree_rotate_left(sibling, _root);
+            sibling = next_parent->left;
+          }
+          // case 4
+          sibling->color = next_parent->color;
+          next_parent->color = __rb_tree_black;
+          if (sibling->left) sibling->left->color = __rb_tree_black; // NOTE: if문이 있을 이유가 있나? red node가 없는 경우도 있는건가?
+          __rb_tree_rotate_right(next_parent, _root);
+          break;
+        }
+      }
+    }
+    if (next) next->color = __rb_tree_black;
+  }
+  return del_node;
 }
 
 
