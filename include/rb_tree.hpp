@@ -173,6 +173,64 @@ __rb_tree_rotate_right(__rb_tree_node_base* _target, __rb_tree_node_base*& _root
   _target->parent = substitute;
 }
 
+// __rb_tree_rebalance
+
+inline void
+__rb_tree_rebalance_after_insertion(__rb_tree_node_base* _inserted, 
+                                    __rb_tree_node_base*& _root) {
+  _inserted->color = __rb_tree_red;
+  while ((_inserted != _root) && (_inserted->parent->color == __rb_tree_red)) {
+    if (_inserted->parent == _inserted->parent->parent->left) {
+      // left
+      __rb_tree_node_base* uncle = _inserted->parent->parent->right;
+      if (uncle && uncle->color == __rb_tree_red) {
+        // case 1
+          // trick: switching colors
+        _inserted->parent->color = __rb_tree_black;
+        uncle->color = __rb_tree_black;
+        _inserted->parent->parent->color = __rb_tree_red;
+        _inserted = _inserted->parent->parent;
+      }
+      else {
+        if (_inserted == _inserted->parent->right) {
+          // case 2
+          _inserted = _inserted->parent;
+          __rb_tree_rotate_left(_inserted, _root);
+        }
+        // case 3
+        _inserted->parent->color = __rb_tree_black;
+        _inserted->parent->parent->color = __rb_tree_red;
+        __rb_tree_rotate_right(_inserted->parent->parent, _root);
+      }
+    }
+    else {
+      // right
+      __rb_tree_node_base* uncle = _inserted->parent->parent->left;
+      if (uncle && uncle->color == __rb_tree_red) {
+        // case 1
+          // trick: switching colors
+        _inserted->parent->color = __rb_tree_black;
+        uncle->color = __rb_tree_black;
+        _inserted->parent->parent->color = __rb_tree_red;
+        _inserted = _inserted->parent->parent;
+      }
+      else {
+        if (_inserted == _inserted->parent->left) {
+          // case 2
+          _inserted = _inserted->parent;
+          __rb_tree_rotate_right(_inserted, _root);
+        }
+        // case 3
+        _inserted->parent->color = __rb_tree_black;
+        _inserted->parent->parent->color = __rb_tree_red;
+        __rb_tree_rotate_left(_inserted->parent->parent, _root);
+      }
+    }
+  }
+  _root->color = __rb_tree_black;
+}
+
+
 template <class Key, class Value, class KeyOfValue, class Compare,
           class Allocator = std::allocator<Value> >
 class rb_tree {
