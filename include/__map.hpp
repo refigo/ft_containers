@@ -129,8 +129,8 @@ public:
 
 // Operations:
     // find
-    // iterator find(const key_type& __k)             {return __tree_.find(__k);}
-    // const_iterator find(const key_type& __k) const {return __tree_.find(__k);}
+    iterator find(const key_type& _k)             {return __tree_.find(_k);}
+    const_iterator find(const key_type& _k) const {return __tree_.find(_k);}
 
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }

@@ -2,6 +2,7 @@
 #define MGO_RB_TREE__
 
 #include "iterator.hpp"
+#include "__utils.hpp"
 #include <memory>
 
 namespace ft
@@ -741,8 +742,34 @@ public:
 
 public:
   // set operations:
-  iterator find(const key_type& _k);
-  const_iterator find(const key_type& _x) const;
+  iterator find(const key_type& _k) {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (!key_compare_(key(leading), _k)) // 찾는 key가 leading과 같거나 혹은 보다 더 작을때
+        keeping = leading, leading = left(leading); // NOTE
+      else // 찾는 key가 더 클 때
+        leading = right(leading);
+    }
+    iterator checking = iterator(keeping);
+    return ((checking == end() || key_compare_(_k, key(checking.node))) 
+            ? end() : checking); // 같은 key를 못 찾은 경우 end()를 반환
+  }
+  const_iterator find(const key_type& _k) const {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (!key_compare_(key(leading), _k)) // 찾는 key가 leading node와 같거나 혹은 보다 더 작을때
+        keeping = leading, leading = left(leading); // NOTE
+      else // 찾는 key가 더 클 때
+        leading = right(leading);
+    }
+    iterator checking = iterator(keeping);
+    return ((checking == end() || key_compare_(_k, key(checking.node))) 
+            ? end() : checking); // 같은 key를 못 찾은 경우 end()를 반환
+  }
   size_type count(const key_type& _k) const {
     ft::pair<const_iterator, const_iterator> p = equal_range(_k);
     size_type n = 0;
