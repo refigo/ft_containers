@@ -132,6 +132,7 @@ public:
   // key_comp
   key_compare key_comp() const { return __tree_.key_comp(); }
   // value_comp
+  value_compare value_comp() const { return value_compare(__tree_.key_comp()); }
 
 // Operations:
     // find
