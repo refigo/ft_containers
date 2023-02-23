@@ -36,12 +36,12 @@ public:
 	// size
 	size_type size() const		{ return ctnr_.size(); }
 
-
 // Modifiers:
 	// push
+	void push(const value_type& _v) { ctnr_.push_back(_v); }
 
 	// pop
-
+	void pop() { ctnr_.pop_back(); }
 
 }; // class stack
 
