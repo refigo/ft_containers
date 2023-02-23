@@ -152,8 +152,15 @@ public:
   const_iterator upper_bound(const key_type& _k) const {
     return __tree_.upper_bound(_k);
   }
+  // equal_range
+  ft::pair<iterator,iterator> equal_range(const key_type& _k) {
+    return __tree_.equal_range(_k);
+  }
+  ft::pair<const_iterator,const_iterator> equal_range(const key_type& _k) const {
+    return __tree_.equal_range(_k);
+  }
 
-
+// TODO: remove
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }
 };
