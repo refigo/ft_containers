@@ -38,11 +38,11 @@ struct __rb_tree_node_base
   }
 };
 
-template <class Value>
+template <class _Value>
 struct __rb_tree_node : public __rb_tree_node_base
 {
-  typedef __rb_tree_node<Value>* link_type;
-  Value value_field;
+  typedef __rb_tree_node<_Value>* link_type;
+  _Value  value_field;
 };
 
 // __rb_tree_iterator
@@ -50,8 +50,8 @@ struct __rb_tree_node : public __rb_tree_node_base
 struct __rb_tree_base_iterator
 {
   typedef __rb_tree_node_base::base_ptr base_ptr;
-  typedef bidirectional_iterator_tag iterator_category;
-  typedef ptrdiff_t difference_type;
+  typedef bidirectional_iterator_tag    iterator_category;
+  typedef ptrdiff_t                     difference_type;
   base_ptr node;
 
   void increment()
@@ -94,16 +94,17 @@ struct __rb_tree_base_iterator
   }
 };
 
-template <class Value, class Ref, class Ptr>
+template <class _Value, class _Ref, class _Ptr>
 struct __rb_tree_iterator : public __rb_tree_base_iterator
 {
-  typedef Value value_type;
-  typedef Ref reference;
-  typedef Ptr pointer;
-  typedef __rb_tree_iterator<Value, Value&, Value*>             iterator;
-  typedef __rb_tree_iterator<Value, const Value&, const Value*> const_iterator;
-  typedef __rb_tree_iterator<Value, Ref, Ptr>                   self;
-  typedef __rb_tree_node<Value>* link_type;
+  typedef _Value                                            value_type;
+  typedef _Ref                                              reference;
+  typedef _Ptr                                              pointer;
+  typedef __rb_tree_iterator<_Value, _Value&, _Value*>      iterator;
+  typedef __rb_tree_iterator<_Value, const _Value&, const _Value*> 
+                                                            const_iterator;
+  typedef __rb_tree_iterator<_Value, _Ref, _Ptr>            self;
+  typedef __rb_tree_node<_Value>*                           link_type;
 
   __rb_tree_iterator() {}
   __rb_tree_iterator(link_type x) { node = x; }
@@ -127,19 +128,24 @@ struct __rb_tree_iterator : public __rb_tree_base_iterator
   }
 };
 
-inline bool operator==(const __rb_tree_base_iterator& x,
-                       const __rb_tree_base_iterator& y) {
+inline
+bool
+operator==(const __rb_tree_base_iterator& x,
+           const __rb_tree_base_iterator& y) {
   return x.node == y.node;
 }
 
-inline bool operator!=(const __rb_tree_base_iterator& x,
-                       const __rb_tree_base_iterator& y) {
+inline
+bool
+operator!=(const __rb_tree_base_iterator& x,
+           const __rb_tree_base_iterator& y) {
   return x.node != y.node;
 }
 
 // __rb_tree_rotate
 
-inline void
+inline
+void
 __rb_tree_rotate_left(__rb_tree_node_base* _target, __rb_tree_node_base*& _root) {
   __rb_tree_node_base* substitute = _target->right;
   _target->right = substitute->left;
@@ -157,7 +163,8 @@ __rb_tree_rotate_left(__rb_tree_node_base* _target, __rb_tree_node_base*& _root)
   _target->parent = substitute;
 }
 
-inline void
+inline
+void
 __rb_tree_rotate_right(__rb_tree_node_base* _target, __rb_tree_node_base*& _root) {
   __rb_tree_node_base* substitute = _target->left;
   _target->left = substitute->right;
@@ -177,7 +184,8 @@ __rb_tree_rotate_right(__rb_tree_node_base* _target, __rb_tree_node_base*& _root
 
 // __rb_tree_rebalance
 
-inline void
+inline
+void
 __rb_tree_rebalance_when_insertion(__rb_tree_node_base* _inserted, 
                                     __rb_tree_node_base*& _root) {
   _inserted->color = __rb_tree_red;
@@ -232,7 +240,8 @@ __rb_tree_rebalance_when_insertion(__rb_tree_node_base* _inserted,
   _root->color = __rb_tree_black;
 }
 
-inline __rb_tree_node_base*
+inline
+__rb_tree_node_base*
 __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
                                     __rb_tree_node_base*& _root,
                                     __rb_tree_node_base*& _leftmost,
@@ -722,12 +731,15 @@ public:
   size_type erase(const key_type& _k) {
     pair<iterator,iterator> p = equal_range(_k);
     size_type n = 0;
-    distance(p.first, p.second, n);
+    ft::distance(p.first, p.second, n);
     erase(p.first, p.second);
     return n;
   }
   void erase(iterator _first, iterator _last) {
-    while (_first != _last) erase(*(_first++));
+    if (_first == begin() && _last == end())
+      clear();
+    else
+      while (_first != _last) erase(_first++);
   }
 
   void clear() {
