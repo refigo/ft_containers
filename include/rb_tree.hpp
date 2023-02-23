@@ -483,7 +483,7 @@ protected:
     return ret;
   }
 
-  void destroy_node(link_type _p) {
+  void delete_node(link_type _p) {
     value_alloc_.destroy(&(_p->value_field));
     dealloc_node(_p);
   }
@@ -558,7 +558,7 @@ private:
     while (_x != NULL) {
       __erase(right(_x));
       link_type tmp = left(_x);
-      destroy_node(_x);
+      delete_node(_x);
       _x = tmp;
     }
   }
@@ -710,24 +710,22 @@ public:
   }
 
   void erase(iterator _position) {
-    (void)_position;
-    // TODO: rebalancing
-    // link_type y = (link_type) __rb_tree_rebalance_for_erase(_position.node,
-    //                                                         header->parent,
-    //                                                         header->left,
-    //                                                         header->right);
-    // destroy_node(y);
+    link_type to_delete = (link_type) __rb_tree_rebalance_when_deletion(_position.node,
+                                                                        header_->parent,
+                                                                        header_->left,
+                                                                        header_->right);
+    delete_node(to_delete);
     --node_count_;
   }
-  size_type erase(const key_type& _x) {
-    pair<iterator,iterator> p = equal_range(_x);
+  size_type erase(const key_type& _k) {
+    pair<iterator,iterator> p = equal_range(_k);
     size_type n = 0;
     distance(p.first, p.second, n);
     erase(p.first, p.second);
     return n;
   }
   void erase(iterator _first, iterator _last) {
-    while (_first != _last) erase(*_first++);
+    while (_first != _last) erase(*(_first++));
   }
   // void erase(const key_type* _first, const key_type* _last);
   void clear() {
@@ -776,10 +774,56 @@ public:
     distance(p.first, p.second, n);
     return n;
   }
-  iterator lower_bound(const key_type& _x);
-  const_iterator lower_bound(const key_type& _x) const;
-  iterator upper_bound(const key_type& _x);
-  const_iterator upper_bound(const key_type& _x) const;
+  // lower_bound: 인자로 들어온 key와 같거나 key 보다 작은 것 중에 가장 큰 것을 반환
+  iterator lower_bound(const key_type& _k) {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (!key_compare_(key(leading), _k)) // _k가 같거나 작을 때
+        keeping = leading, leading = left(leading);
+      else
+        leading = right(leading);
+    }
+    return iterator(keeping);
+  }
+  const_iterator lower_bound(const key_type& _k) const {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (!key_compare_(key(leading), _k)) // _k가 같거나 작을 때
+        keeping = leading, leading = left(leading);
+      else
+        leading = right(leading);
+    }
+    return const_iterator(keeping);
+  }
+  // upper_bound: 인자로 들어온 key 보다 큰 것 중에 가장 작은 것을 반환
+  iterator upper_bound(const key_type& _k) {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (key_compare_(_k, key(leading))) // _k가 작을 때
+        keeping = leading, leading = left(leading);
+      else
+        leading = right(leading);
+    }
+    return iterator(keeping);
+  }
+  const_iterator upper_bound(const key_type& _k) const {
+    link_type keeping = header_;
+    link_type leading = root();
+
+    while (leading != NULL) {
+      if (key_compare_(_k, key(leading))) // _k가 작을 때
+        keeping = leading, leading = left(leading);
+      else
+        leading = right(leading);
+    }
+    return const_iterator(keeping);
+  }
   ft::pair<iterator,iterator> equal_range(const key_type& _k) {
     return ft::pair<iterator,iterator>(lower_bound(_k), upper_bound(_k));
   }
