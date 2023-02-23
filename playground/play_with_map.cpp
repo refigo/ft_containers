@@ -1,16 +1,21 @@
+// playing
 
-// #include "../include/map.hpp"
-
+// map
+#include "../include/map.hpp"
 #include <map>
 
-#include <iostream>
+// stack
+#include "../include/stack.hpp"
+#include <stack>
 
-// #include "../include/rb_tree.hpp"
-#include "../include/__map.hpp"
+// pair
 #include "../include/pair.hpp"
 
-int main(void)
-{
+// std
+#include <iostream>
+
+
+void play_map(void) {
 	// std
 	{
 		std::map<char, int>		real_map; // constructor empty (1)
@@ -26,14 +31,15 @@ int main(void)
 		
 		ret = real_map.insert ( std::pair<char,int>('z',500) );
 		if (ret.second==false) {
-		std::cout << "element 'z' already existed";
-		std::cout << " with a value of " << ret.first->second << '\n';
+			std::cout << "element 'z' already existed";
+			std::cout << " with a value of " << ret.first->second << '\n';
 
-		for (std::map<char,int>::iterator it = real_map.begin(); it != real_map.end(); ++it) {
-			std::cout << "<" << it->first << ", " << it->second  << ">" << '\n';
-			// std::cout << *it << std::endl;
-		}
-  }
+			for (std::map<char,int>::iterator it = real_map.begin(); it != real_map.end(); ++it) {
+				std::cout << "<" << it->first << ", " << it->second  << ">" << '\n';
+				// std::cout << *it << std::endl;
+			}
+			real_map.get_allocator();
+  		}
 
 	}
 
@@ -54,6 +60,25 @@ int main(void)
 			std::cout << "<" << it->first << ", " << it->second  << ">" << '\n';
 		}
 	}
+}
+
+void play_stack(void) {
+	// std
+	{
+		std::stack<int> real_stk;
+	}
+
+	// ft
+	{
+		ft::stack<int> my_stk;
+
+	}
+}
+
+int main(void)
+{
+	play_map();
+	// play_stack();
 
 	return 0;
 }

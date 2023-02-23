@@ -10,6 +10,8 @@ namespace ft
 
 template <class _Tp, class _Container = ft::vector<_Tp> >
 class stack {
+	friend bool operator==(const stack& _lhs, const stack& _rhs);
+	friend bool operator< (const stack& _lhs, const stack& _rhs);
 public:
 	typedef _Container									container_type;
 	typedef typename container_type::value_type			value_type;
@@ -50,8 +52,6 @@ public:
 	// pop
 	void pop() { ctnr_.pop_back(); }
 
-	friend bool operator==(const stack&, const stack&);
-	friend bool operator< (const stack&, const stack&);
 
 }; // class stack
 
@@ -74,7 +74,7 @@ template <class _Tp, class _Container>
 inline
 bool
 operator!=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return !(_lhs.ctnr_ == _rhs.ctnr_);
+	return !(_lhs == _rhs);
 }
 
 template <class _Tp, class _Container>
