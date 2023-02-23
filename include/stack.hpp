@@ -10,8 +10,6 @@ namespace ft
 
 template <class _Tp, class _Container = ft::vector<_Tp> >
 class stack {
-	friend bool operator==(const stack& _lhs, const stack& _rhs);
-	friend bool operator< (const stack& _lhs, const stack& _rhs);
 public:
 	typedef _Container									container_type;
 	typedef typename container_type::value_type			value_type;
@@ -52,51 +50,21 @@ public:
 	// pop
 	void pop() { ctnr_.pop_back(); }
 
+// Relational operations
+	bool operator==(const stack<_Tp, _Container>& _other) const { 
+		return (ctnr_ == _other.ctnr_); }
+	bool operator< (const stack<_Tp, _Container>& _other) const {
+		return (ctnr_ < _other.ctnr_); }
+	bool operator!=(const stack<_Tp, _Container>& _other) const {
+		return !(*this == _other); }
+	bool operator> (const stack<_Tp, _Container>& _other) const {
+		return (_other < *this); }
+	bool operator>=(const stack<_Tp, _Container>& _other) const {
+		return !(*this < _other); }
+	bool operator<=(const stack<_Tp, _Container>& _other) const {
+		return !(_other < *this); }
 
 }; // class stack
-
-// Non-member functions for stack
-template <class _Tp, class _Container>
-inline
-bool
-operator==(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return _lhs.ctnr_ == _rhs.ctnr_;
-}
-
-template <class _Tp, class _Container>
-inline
-bool
-operator< (const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return _lhs.ctnr_ < _rhs.ctnr_;
-}
-
-template <class _Tp, class _Container>
-inline
-bool
-operator!=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return !(_lhs == _rhs);
-}
-
-template <class _Tp, class _Container>
-inline
-bool
-operator> (const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return _rhs < _lhs;
-}
-
-template <class _Tp, class _Container>
-inline
-bool
-operator>=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return !(_lhs < _rhs);
-}
-
-template <class _Tp, class _Container>
-inline
-bool
-operator<=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
-	return !(_rhs < _lhs);
-}
 
 } // namespace ft
 
