@@ -139,7 +139,7 @@ public:
   iterator find(const key_type& _k)             {return __tree_.find(_k);}
   const_iterator find(const key_type& _k) const {return __tree_.find(_k);}
   // count
-  size_type count(const key_type& _k) { return __tree_.count(_k); }
+  size_type count(const key_type& _k) const { return __tree_.count(_k); }
   // lower_bound
   iterator lower_bound(const key_type& _k) { return __tree_.lower_bound(_k); }
   const_iterator lower_bound(const key_type& _k) const {
