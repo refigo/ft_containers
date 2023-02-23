@@ -685,34 +685,30 @@ public:
       return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
     }
     // 이미 같은 key가 있는 경우
-    return (pair<iterator,bool>(to_check, false));
+    return pair<iterator,bool>(to_check, false);
   }
   iterator insert_unique(iterator _position, const value_type& _v) {
     if (_position.node == header_->left) {
       // begin()
       if (size() > 0 && key_compare_(_KeyOfValue()(_v), key(_position.node)))
         return __insert(_position.node, _position.node, _v);
-      else
-        return (insert_unique(_v).first);
+      return (insert_unique(_v).first);
     }
     else if (_position.node == header_) {
       // end()
       if (key_compare_(key(rightmost()), _KeyOfValue()(_v)))
         return __insert(NULL, rightmost(), _v);
-      else
-        return (insert_unique(_v).first);
+      return (insert_unique(_v).first);
     }
-    else {
-      iterator before = _position;
-      --before;
-      if (key_compare_(key(before.node), _KeyOfValue()(_v))
-          && key_compare_(_KeyOfValue()(_v), key(_position.node))) {
-        if (right(before.node) == NULL)
-          return __insert(NULL, before.node, _v);
-        else
-          return __insert(_position.node, _position.node, _v);
-      }
+    iterator before = _position;
+    --before;
+    if (key_compare_(key(before.node), _KeyOfValue()(_v))
+        && key_compare_(_KeyOfValue()(_v), key(_position.node))) {
+      if (right(before.node) == NULL)
+        return __insert(NULL, before.node, _v);
+      return __insert(_position.node, _position.node, _v);
     }
+    return (insert_unique(_v).first);
   }
   template <class InputIterator>
   void insert_unique(InputIterator _first, InputIterator _last) {
