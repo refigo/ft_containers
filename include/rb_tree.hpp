@@ -879,6 +879,14 @@ public:
     delete_node(to_delete);
     --node_count_;
   }
+  void erase(const_iterator _position) {
+    link_type to_delete = (link_type) __rb_tree_rebalance_when_deletion(_position.node,
+                                                                        header_->parent,
+                                                                        header_->left,
+                                                                        header_->right);
+    delete_node(to_delete);
+    --node_count_;
+  }
   size_type erase(const key_type& _k) {
     pair<iterator,iterator> p = equal_range(_k);
     size_type n = 0;
@@ -887,6 +895,12 @@ public:
     return n;
   }
   void erase(iterator _first, iterator _last) {
+    if (_first == begin() && _last == end())
+      clear();
+    else
+      while (_first != _last) erase(_first++);
+  }
+  void erase(const_iterator _first, const_iterator _last) {
     if (_first == begin() && _last == end())
       clear();
     else
