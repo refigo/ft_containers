@@ -21,14 +21,30 @@ protected:
 	container_type ctnr_;
 
 public:
+// (constructor)
 	explicit stack (const container_type& _ctnr = container_type())
 		: ctnr_(_ctnr) {}
 
+// Element access:
+	// top
+	reference top()		{ return ctnr_.back(); }
+
+// Capacity:
+	// empty
+
+	// size
+
+
+// Modifiers:
+	// push
+
+	// pop
+
 
 }; // class stack
-	
+
+// Non-member functions for stack
+
 } // namespace ft
-
-
 
 #endif
