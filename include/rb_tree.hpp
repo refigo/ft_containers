@@ -630,7 +630,7 @@ public:
     }
 
 public:
-// accessors:
+  Compare key_comp() const { return key_compare_; }
   iterator begin() { return leftmost(); }
   const_iterator begin() const { return leftmost(); }
   iterator end() { return header_; }

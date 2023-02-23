@@ -128,6 +128,11 @@ public:
   // clear
   void clear() { __tree_.clear(); }
 
+// Observers:
+  // key_comp
+  key_compare key_comp() const { return __tree_.key_comp(); }
+  // value_comp
+
 // Operations:
     // find
     iterator find(const key_type& _k)             {return __tree_.find(_k);}
