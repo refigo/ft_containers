@@ -25,6 +25,13 @@ public:
 	explicit stack (const container_type& _ctnr = container_type())
 		: ctnr_(_ctnr) {}
 
+// operator=
+	stack& operator=(const stack& _other) {
+		if (this != &_other)
+			ctnr_ = _other.ctnr_;
+		return *this;
+	}
+
 // Element access:
 	// top
 	reference top()				{ return ctnr_.back(); }
