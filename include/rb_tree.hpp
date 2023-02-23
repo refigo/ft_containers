@@ -49,12 +49,73 @@ struct __rb_tree_node : public __rb_tree_node_base
 
 // __rb_tree_iterator
 
-struct __rb_tree_base_iterator
+// struct __rb_tree_base_iterator
+// {
+//   typedef __rb_tree_node_base::base_ptr base_ptr;
+//   typedef bidirectional_iterator_tag    iterator_category;
+//   typedef ptrdiff_t                     difference_type;
+//   base_ptr node;
+
+//   void increment()
+//   {
+//     if (node->right != 0) {
+//       node = node->right;
+//       while (node->left != 0)
+//         node = node->left;
+//     }
+//     else {
+//       base_ptr y = node->parent;
+//       while (node == y->right) {
+//         node = y;
+//         y = y->parent;
+//       }
+//       if (node->right != y)
+//         node = y;
+//     }
+//   }
+
+//   void decrement()
+//   {
+//     if (node->color == __rb_tree_red &&
+//         node->parent->parent == node)
+//       node = node->right;
+//     else if (node->left != 0) {
+//       base_ptr y = node->left;
+//       while (y->right != 0)
+//         y = y->right;
+//       node = y;
+//     }
+//     else {
+//       base_ptr y = node->parent;
+//       while (node == y->left) {
+//         node = y;
+//         y = y->parent;
+//       }
+//       node = y;
+//     }
+//   }
+// };
+
+template <class _Value, class _Ref, class _Ptr>
+struct __rb_tree_iterator // : public __rb_tree_base_iterator
 {
-  typedef __rb_tree_node_base::base_ptr base_ptr;
-  typedef bidirectional_iterator_tag    iterator_category;
-  typedef ptrdiff_t                     difference_type;
+  typedef bidirectional_iterator_tag                        iterator_category;
+  typedef _Value                                            value_type;
+  typedef _Ref                                              reference;
+  typedef _Ptr                                              pointer;
+  typedef ptrdiff_t                                         difference_type;
+  typedef __rb_tree_node_base::base_ptr                     base_ptr;
+  typedef __rb_tree_iterator<_Value, _Value&, _Value*>      iterator;
+  typedef __rb_tree_iterator<_Value, const _Value&, const _Value*> 
+                                                            const_iterator;
+  typedef __rb_tree_iterator<_Value, _Ref, _Ptr>            self;
+  typedef __rb_tree_node<_Value>*                           link_type;
+
   base_ptr node;
+
+  __rb_tree_iterator() {}
+  __rb_tree_iterator(link_type x) { node = x; }
+  __rb_tree_iterator(const iterator& it) { node = it.node; }
 
   void increment()
   {
@@ -94,23 +155,6 @@ struct __rb_tree_base_iterator
       node = y;
     }
   }
-};
-
-template <class _Value, class _Ref, class _Ptr>
-struct __rb_tree_iterator : public __rb_tree_base_iterator
-{
-  typedef _Value                                            value_type;
-  typedef _Ref                                              reference;
-  typedef _Ptr                                              pointer;
-  typedef __rb_tree_iterator<_Value, _Value&, _Value*>      iterator;
-  typedef __rb_tree_iterator<_Value, const _Value&, const _Value*> 
-                                                            const_iterator;
-  typedef __rb_tree_iterator<_Value, _Ref, _Ptr>            self;
-  typedef __rb_tree_node<_Value>*                           link_type;
-
-  __rb_tree_iterator() {}
-  __rb_tree_iterator(link_type x) { node = x; }
-  __rb_tree_iterator(const iterator& it) { node = it.node; }
 
   reference operator*() const { return link_type(node)->value_field; }
   pointer operator->() const { return &(operator*()); }
@@ -130,18 +174,20 @@ struct __rb_tree_iterator : public __rb_tree_base_iterator
   }
 };
 
+template <class _Value, class _Ref, class _Ptr>
 inline
 bool
-operator==(const __rb_tree_base_iterator& x,
-           const __rb_tree_base_iterator& y) {
-  return x.node == y.node;
+operator==(const __rb_tree_iterator<_Value, _Ref, _Ptr>& _x,
+           const __rb_tree_iterator<_Value, _Ref, _Ptr>& _y) {
+  return _x.node == _y.node;
 }
 
+template <class _Value, class _Ref, class _Ptr>
 inline
 bool
-operator!=(const __rb_tree_base_iterator& x,
-           const __rb_tree_base_iterator& y) {
-  return x.node != y.node;
+operator!=(const __rb_tree_iterator<_Value, _Ref, _Ptr>& _x,
+           const __rb_tree_iterator<_Value, _Ref, _Ptr>& _y) {
+  return _x.node != _y.node;
 }
 
 // __rb_tree_rotate
