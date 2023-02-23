@@ -164,7 +164,7 @@ public:
 
 // TODO: remove
 public:
-  bool test_rb_tree() {return (__tree_.__rb_verify()); }
+  // bool test_rb_tree() {return (__tree_.__rb_verify()); }
 
 // TODO: remove
 // relational operators
