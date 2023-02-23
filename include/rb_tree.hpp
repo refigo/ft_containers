@@ -865,6 +865,29 @@ public:
     }
     return (insert_unique(_v).first);
   }
+  const_iterator insert_unique(const_iterator _position, const value_type& _v) {
+    if (_position.node == header_->left) {
+      // begin()
+      if (size() > 0 && key_compare_(_KeyOfValue()(_v), key(_position.node)))
+        return __insert(_position.node, _position.node, _v);
+      return (insert_unique(_v).first);
+    }
+    else if (_position.node == header_) {
+      // end()
+      if (key_compare_(key(rightmost()), _KeyOfValue()(_v)))
+        return __insert(NULL, rightmost(), _v);
+      return (insert_unique(_v).first);
+    }
+    const_iterator before = _position;
+    --before;
+    if (key_compare_(key(before.node), _KeyOfValue()(_v))
+        && key_compare_(_KeyOfValue()(_v), key(_position.node))) {
+      if (right(before.node) == NULL)
+        return __insert(NULL, before.node, _v);
+      return __insert(_position.node, _position.node, _v);
+    }
+    return (insert_unique(_v).first);
+  }
   template <class InputIterator>
   void insert_unique(InputIterator _first, InputIterator _last) {
     for ( ; _first != _last; ++_first)
