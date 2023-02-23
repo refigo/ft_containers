@@ -166,19 +166,20 @@ public:
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }
 
+// TODO: remove
 // relational operators
-  friend bool operator==(const map&, const map&);
-  friend bool operator< (const map&, const map&);
+  // friend bool operator==(const map&, const map&);
+  // friend bool operator< (const map&, const map&);
 }; // class map
 
 
-// Non-member functions for stack
+// Non-member functions for map
 template <class _Key, class _Tp, class _Compare, class _Alloc>
 inline
 bool
 operator==(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
            const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
-	return _lhs.__tree_ == _rhs.__tree_;
+	return (_lhs.size() == _rhs.size() && ft::equal(_lhs.begin(), _lhs.end(), _rhs.begin()));
 }
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>
@@ -186,7 +187,7 @@ inline
 bool
 operator< (const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
            const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
-	return _lhs.__tree_ < _rhs.__tree_;
+	return ft::lexicographical_compare(_lhs.begin(), _lhs.end(), _rhs.begin(), _rhs.end());
 }
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>
@@ -194,7 +195,7 @@ inline
 bool
 operator!=(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
            const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
-	return !(_lhs.__tree_ == _rhs.__tree_);
+	return !(_lhs == _rhs);
 }
 
 template <class _Key, class _Tp, class _Compare, class _Alloc>

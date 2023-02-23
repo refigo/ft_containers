@@ -6,6 +6,8 @@
 #include "iterator.hpp"
 #include <memory>
 
+// #include <algorithm> // for swap()
+
 namespace ft
 {
 
@@ -295,7 +297,7 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
     else
       _to_delete->parent->right = del_node;
     del_node->parent = _to_delete->parent;
-    ft::swap(del_node->color, _to_delete->color);
+    std::swap(del_node->color, _to_delete->color);
     del_node = _to_delete; // del_node now points to node to be actually deleted
   }
   else {
@@ -749,11 +751,11 @@ public:
   }
 
   void swap(rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _t) {
-    ft::swap(header_, _t.header_);
-    ft::swap(node_count_, _t.node_count_);
-    ft::swap(key_compare_, _t.key_compare_);
-    ft::swap(value_alloc_, _t.value_alloc_); // NOTE
-    ft::swap(node_alloc_, _t.node_alloc_); // NOTE
+    swap(header_, _t.header_);
+    swap(node_count_, _t.node_count_);
+    swap(key_compare_, _t.key_compare_);
+    swap(value_alloc_, _t.value_alloc_); // NOTE
+    swap(node_alloc_, _t.node_alloc_); // NOTE
   }
 
 public:
@@ -858,8 +860,24 @@ public:
 
 public:
   // Debugging.
-  bool __rb_verify() const;
+  // bool __rb_verify() const;
 }; // class rb_tree
+
+template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
+inline
+bool
+operator==(const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _lhs, 
+           const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _rhs) {
+  return (_lhs.size() == _rhs.size() && ft::equal(_lhs.begin(), _lhs.end(), _rhs.begin()));
+}
+
+template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
+inline
+bool
+operator<(const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _lhs, 
+          const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _rhs) {
+  return ft::lexicographical_compare(_lhs.begin(), _lhs.end(), _rhs.begin(), _rhs.end());
+}
 
 inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root) {
   if (_node == 0)
@@ -873,40 +891,40 @@ inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root)
   }
 }
 
-template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
-bool
-rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>::__rb_verify() const {
-  if (node_count_ == 0 || begin() == end())
-    return node_count_ == 0 && begin() == end() &&
-      header_->left == header_ && header_->right == header_;
+// template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
+// bool
+// rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>::__rb_verify() const {
+//   if (node_count_ == 0 || begin() == end())
+//     return node_count_ == 0 && begin() == end() &&
+//       header_->left == header_ && header_->right == header_;
 
-  int len = __black_count(leftmost(), root());
-  for (const_iterator it = begin(); it != end(); ++it) {
-    link_type x = (link_type) it.node;
-    link_type L = left(x);
-    link_type R = right(x);
+//   int len = __black_count(leftmost(), root());
+//   for (const_iterator it = begin(); it != end(); ++it) {
+//     link_type x = (link_type) it.node;
+//     link_type L = left(x);
+//     link_type R = right(x);
 
-    if (x->color == __rb_tree_red)
-      if ((L && L->color == __rb_tree_red) ||
-          (R && R->color == __rb_tree_red))
-        return false;
+//     if (x->color == __rb_tree_red)
+//       if ((L && L->color == __rb_tree_red) ||
+//           (R && R->color == __rb_tree_red))
+//         return false;
     
-    if (L && key_compare_(key(x), key(L)))
-      return false;
-    if (L && key_compare_(key(R), key(x)))
-      return false;
+//     if (L && key_compare_(key(x), key(L)))
+//       return false;
+//     if (L && key_compare_(key(R), key(x)))
+//       return false;
     
-    if (!L && !R && __black_count(x, root()) != len)
-      return false;
-  }
+//     if (!L && !R && __black_count(x, root()) != len)
+//       return false;
+//   }
 
-  if (leftmost() != __rb_tree_node_base::minimum(root()))
-    return false;
-  if (rightmost() != __rb_tree_node_base::maximum(root()))
-    return false;
+//   if (leftmost() != __rb_tree_node_base::minimum(root()))
+//     return false;
+//   if (rightmost() != __rb_tree_node_base::maximum(root()))
+//     return false;
   
-  return true;
-}
+//   return true;
+// }
 
 } // namespace ft
 

@@ -52,12 +52,12 @@ struct less : binary_function<_Tp, _Tp, bool>
 
 // swap
 
-template <class _Tp>
-inline void swap(_Tp& _a, _Tp& _b) {
-  _Tp tmp = _a;
-  _a = _b;
-  _b = tmp;
-}
+// template <class _Tp>
+// inline void swap(_Tp& _a, _Tp& _b) {
+//   _Tp tmp = _a;
+//   _a = _b;
+//   _b = tmp;
+// }
 
 } // namespace ft
 
