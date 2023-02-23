@@ -751,11 +751,11 @@ public:
   }
 
   void swap(rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _t) {
-    swap(header_, _t.header_);
-    swap(node_count_, _t.node_count_);
-    swap(key_compare_, _t.key_compare_);
-    swap(value_alloc_, _t.value_alloc_); // NOTE
-    swap(node_alloc_, _t.node_alloc_); // NOTE
+    std::swap(header_, _t.header_);
+    std::swap(node_count_, _t.node_count_);
+    std::swap(key_compare_, _t.key_compare_);
+    std::swap(value_alloc_, _t.value_alloc_); // NOTE
+    std::swap(node_alloc_, _t.node_alloc_); // NOTE
   }
 
 public:
