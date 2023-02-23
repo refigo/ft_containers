@@ -747,7 +747,8 @@ public:
   }
 
 public:
-  // set operations:
+// For Operations
+  // find
   iterator find(const key_type& _k) {
     link_type keeping = header_;
     link_type leading = root();
@@ -776,6 +777,7 @@ public:
     return ((checking == end() || key_compare_(_k, key(checking.node))) 
             ? end() : checking); // 같은 key를 못 찾은 경우 end()를 반환
   }
+  // count
   size_type count(const key_type& _k) const {
     ft::pair<const_iterator, const_iterator> p = equal_range(_k);
     size_type n = 0;
@@ -832,6 +834,7 @@ public:
     }
     return const_iterator(keeping);
   }
+  // equal_range
   ft::pair<iterator,iterator> equal_range(const key_type& _k) {
     return ft::pair<iterator,iterator>(lower_bound(_k), upper_bound(_k));
   }

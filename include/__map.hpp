@@ -71,21 +71,25 @@ public:
     : __tree_(_comp, _alloc) { __tree_.insert_unique(_first, _last); }
   // copy (3)
   map (const map<_Key, _Tp, _Compare, _Allocator>& _x) : __tree_(_x.__tree_) {}
-  // operator=
+
+// operator=
   map<_Key, _Tp, _Compare, _Allocator>&
   operator=(const map<_Key, _Tp, _Compare, _Allocator>& _x) {
     __tree_ = _x.__tree_;
     return *this;
   }
 
-
 // Iterators:
+  // begin
   iterator begin() { return __tree_.begin(); }
   const_iterator begin() const { return __tree_.begin(); }
+  // end
   iterator end() { return __tree_.end(); }
   const_iterator end() const { return __tree_.end(); }
+  // rbegin
   reverse_iterator rbegin() { return __tree_.rbegin(); }
   const_reverse_iterator rbegin() const { return __tree_.rbegin(); }
+  // rend
   reverse_iterator rend() { return __tree_.rend(); }
   const_reverse_iterator rend() const { return __tree_.rend(); }
 
@@ -121,10 +125,8 @@ public:
   void erase(iterator _position) { __tree_.erase(_position); }
   size_type erase(const key_type& _x) { return __tree_.erase(_x); }
   void erase(iterator _first, iterator _last) { __tree_.erase(_first, _last); }
-
   // swap
   void swap(map<_Key, _Tp, _Compare, _Allocator>& _m) { __tree_.swap(_m.__tree_); }
-
   // clear
   void clear() { __tree_.clear(); }
 
@@ -135,9 +137,12 @@ public:
   value_compare value_comp() const { return value_compare(__tree_.key_comp()); }
 
 // Operations:
-    // find
-    iterator find(const key_type& _k)             {return __tree_.find(_k);}
-    const_iterator find(const key_type& _k) const {return __tree_.find(_k);}
+  // find
+  iterator find(const key_type& _k)             {return __tree_.find(_k);}
+  const_iterator find(const key_type& _k) const {return __tree_.find(_k);}
+  // count
+  size_type count(const key_type& _k) { return __tree_.count(_k); }
+
 
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }
