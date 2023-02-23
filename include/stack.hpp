@@ -50,9 +50,53 @@ public:
 	// pop
 	void pop() { ctnr_.pop_back(); }
 
+	friend bool operator==(const stack&, const stack&);
+	friend bool operator< (const stack&, const stack&);
+
 }; // class stack
 
 // Non-member functions for stack
+template <class _Tp, class _Container>
+inline
+bool
+operator==(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return _lhs.ctnr_ == _rhs.ctnr_;
+}
+
+template <class _Tp, class _Container>
+inline
+bool
+operator< (const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return _lhs.ctnr_ < _rhs.ctnr_;
+}
+
+template <class _Tp, class _Container>
+inline
+bool
+operator!=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return !(_lhs.ctnr_ == _rhs.ctnr_);
+}
+
+template <class _Tp, class _Container>
+inline
+bool
+operator> (const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return _rhs < _lhs;
+}
+
+template <class _Tp, class _Container>
+inline
+bool
+operator>=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return !(_lhs < _rhs);
+}
+
+template <class _Tp, class _Container>
+inline
+bool
+operator<=(const stack<_Tp, _Container>& _lhs, const stack<_Tp, _Container>& _rhs) {
+	return !(_rhs < _lhs);
+}
 
 } // namespace ft
 
