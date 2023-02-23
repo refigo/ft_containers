@@ -439,6 +439,32 @@ operator+(typename __wrap_iter<_Iter>::difference_type __n,
     return __wrap_iter<_Iter>(__x.base() + __n);
 }
 
+// distance
+
+template <class _InputIterator, class _Distance>
+inline
+void
+__distance(_InputIterator _first, _InputIterator _last, _Distance& _n,
+            input_iterator_tag) {
+    while (_first != _last) { ++_first; ++_n; }
+}
+
+template <class _RandomAccessIterator, class _Distance>
+inline
+void
+__distance(_RandomAccessIterator _first, _RandomAccessIterator _last, 
+           _Distance& _n, random_access_iterator_tag) {
+    _n += _last - _first;
+}
+
+template <class _InputIterator, class _Distance>
+inline
+void
+distance(_InputIterator _first, _InputIterator _last, _Distance& _n) {
+    typedef typename iterator_traits<_InputIterator>::iterator_category category;
+    __distance(_first, _last, _n, category());
+}
+
 } // namespace ft
 
 #endif /* MGO_ITERATOR_ */
