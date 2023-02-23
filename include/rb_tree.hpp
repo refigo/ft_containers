@@ -648,7 +648,7 @@ public:
   size_type max_size() const { return size_type(-1); } // NOTE
 
 public:
-                                // insert/erase
+// For Modifiers
   pair<iterator,bool> insert_unique(const value_type& _v)
   {
     link_type to_parent = header_;
@@ -727,7 +727,7 @@ public:
   void erase(iterator _first, iterator _last) {
     while (_first != _last) erase(*(_first++));
   }
-  // void erase(const key_type* _first, const key_type* _last);
+
   void clear() {
     if (node_count_ != 0) {
       __erase(root());
@@ -736,6 +736,14 @@ public:
       rightmost() = header_;
       node_count_ = 0;
     }
+  }
+
+  void swap(rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _t) {
+    ft::swap(header_, _t.header_);
+    ft::swap(node_count_, _t.node_count_);
+    ft::swap(key_compare_, _t.key_compare_);
+    ft::swap(value_alloc_, _t.value_alloc_); // NOTE
+    ft::swap(node_alloc_, _t.node_alloc_); // NOTE
   }
 
 public:

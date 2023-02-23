@@ -123,6 +123,7 @@ public:
   void erase(iterator _first, iterator _last) { __tree_.erase(_first, _last); }
 
   // swap
+  void swap(map<_Key, _Tp, _Compare, _Allocator>& _m) { __tree_.swap(_m.__tree_); }
 
   // clear
   void clear() { __tree_.clear(); }
