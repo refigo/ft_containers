@@ -27,13 +27,14 @@ public:
 
 // Element access:
 	// top
-	reference top()			{ return ctnr_.back(); }
-	const_reference top()	{ return ctnr_.back(); }
+	reference top()				{ return ctnr_.back(); }
+	const_reference top() const	{ return ctnr_.back(); }
 
 // Capacity:
 	// empty
-
+	bool empty() const			{ return ctnr_.empty(); }
 	// size
+	size_type size() const		{ return ctnr_.size(); }
 
 
 // Modifiers:
