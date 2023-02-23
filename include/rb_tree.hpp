@@ -393,6 +393,7 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
   return del_node;
 }
 
+// rb_tree
 
 template <class Key, class Value, class KeyOfValue, class Compare,
           class Allocator = std::allocator<Value> >
@@ -841,6 +842,11 @@ public:
   ft::pair<const_iterator,const_iterator> equal_range(const key_type& _k) const {
     return ft::pair<const_iterator,const_iterator>(lower_bound(_k), upper_bound(_k));
   }
+
+public:
+// For alloc
+  node_allocator node_alloc() const { return node_alloc_; }
+  allocator_type alloc() const { return allocator_type(node_alloc()); }
 
 public:
   // Debugging.

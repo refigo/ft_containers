@@ -7,45 +7,43 @@
 #include "__utils.hpp"
 
 #include <memory>
-
 #include <algorithm> // TODO: remove
 
 namespace ft
 {
+
+// map
 
 template <class _Key, class _Tp, class _Compare = ft::less<_Key>,
           class _Allocator = std::allocator<ft::pair<const _Key, _Tp> > >
 class map
 {
 public:
-    typedef _Key                                     	key_type;
-    typedef _Tp                                      	mapped_type;
-    typedef ft::pair<const key_type, mapped_type>		  value_type;
-    typedef _Compare                                 	key_compare;
+  typedef _Key                                     	key_type;
+  typedef _Tp                                      	mapped_type;
+  typedef ft::pair<const key_type, mapped_type>		  value_type;
+  typedef _Compare                                 	key_compare;
+  typedef _Allocator                                allocator_type;
 
-    class value_compare
-        : public ft::binary_function<value_type, value_type, bool>
-    {
-        friend class map;
-    protected:
-        key_compare comp;
+  class value_compare
+      : public ft::binary_function<value_type, value_type, bool>
+  {
+      friend class map;
+  protected:
+      key_compare comp;
 
-        value_compare(key_compare c) : comp(c) {}
-    public:
-        bool operator()(const value_type& __x, const value_type& __y) const
-            {return comp(__x.first, __y.first);}
-    };
+      value_compare(key_compare c) : comp(c) {}
+  public:
+      bool operator()(const value_type& __x, const value_type& __y) const
+          {return comp(__x.first, __y.first);}
+  };
 
 private:
-    typedef ft::pair<key_type, mapped_type>				__value_type;
-    // typedef value_compare													__vc;
-    typedef _Allocator														__allocator_type;
     typedef ft::rb_tree<key_type, value_type, 
-            ft::select1st<value_type>, key_compare, __allocator_type>			__base;
+            ft::select1st<value_type>, key_compare, allocator_type> __base;
     __base __tree_;
 
 public:
-    typedef _Allocator                              allocator_type;
   typedef typename __base::pointer					        pointer;
   typedef typename __base::const_pointer 				    const_pointer;
   typedef typename __base::reference					      reference;
@@ -160,10 +158,14 @@ public:
     return __tree_.equal_range(_k);
   }
 
+// Allocator:
+  // get_allocator
+  allocator_type get_allocator() { return allocator_type(__tree_.alloc()); } // NOTE
+
 // TODO: remove
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }
-};
+}; // class map
 
 } // namespace ft
 
