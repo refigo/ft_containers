@@ -27,7 +27,8 @@ public:
 
 // Element access:
 	// top
-	reference top()		{ return ctnr_.back(); }
+	reference top()			{ return ctnr_.back(); }
+	const_reference top()	{ return ctnr_.back(); }
 
 // Capacity:
 	// empty
