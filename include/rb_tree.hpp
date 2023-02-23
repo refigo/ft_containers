@@ -1,8 +1,9 @@
 #ifndef MGO_RB_TREE__
 #define MGO_RB_TREE__
 
-#include "iterator.hpp"
 #include "__utils.hpp"
+#include "algorithm.hpp"
+#include "iterator.hpp"
 #include <memory>
 
 namespace ft
@@ -394,15 +395,14 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
 }
 
 // rb_tree
-
-template <class Key, class Value, class KeyOfValue, class Compare,
-          class Allocator = std::allocator<Value> >
+template <class _Key, class _Value, class _KeyOfValue, class _Compare,
+          class _Alloc = std::allocator<_Value> >
 class rb_tree {
 public:
-  typedef Key                                           key_type;
-	typedef Value                                      		value_type;
-  typedef Compare                                 			key_compare;
-  typedef Allocator                               			allocator_type;
+  typedef _Key                                          key_type;
+	typedef _Value                                      	value_type;
+  typedef _Compare                                 			key_compare;
+  typedef _Alloc                               			    allocator_type;
   typedef typename allocator_type::pointer         			pointer;
   typedef typename allocator_type::const_pointer   			const_pointer;
   typedef typename allocator_type::size_type       			size_type;
@@ -422,7 +422,7 @@ public:
 protected:
   typedef void*                                                           void_pointer;
   typedef __rb_tree_node_base*                                            base_ptr;
-  typedef __rb_tree_node<Value>                                           rb_tree_node;
+  typedef __rb_tree_node<_Value>                                          rb_tree_node;
   typedef __rb_tree_color_type                                            color_type;
   typedef	typename allocator_type::template rebind<rb_tree_node>::other   node_allocator;
 // public:
@@ -431,7 +431,7 @@ protected:
 protected:
   size_type       node_count_; // keeps track of size of tree
   link_type       header_;
-  Compare         key_compare_;
+  _Compare        key_compare_;
   allocator_type  value_alloc_;
   node_allocator  node_alloc_;
 
@@ -443,14 +443,14 @@ protected:
   static link_type& right(link_type _x) { return (link_type&)(_x->right); }
   static link_type& parent(link_type _x) { return (link_type&)(_x->parent); }
   static reference value(link_type _x) { return _x->value_field; }
-  static const Key& key(link_type _x) { return KeyOfValue()(value(_x)); }
+  static const _Key& key(link_type _x) { return _KeyOfValue()(value(_x)); }
   static color_type& color(link_type _x) { return (color_type&)(_x->color); }
 
   static link_type& left(base_ptr _x) { return (link_type&)(_x->left); }
   static link_type& right(base_ptr _x) { return (link_type&)(_x->right); }
   static link_type& parent(base_ptr _x) { return (link_type&)(_x->parent); }
   static reference value(base_ptr _x) { return ((link_type)_x)->value_field; }
-  static const Key& key(base_ptr _x) { return KeyOfValue()(value(link_type(_x)));} 
+  static const _Key& key(base_ptr _x) { return _KeyOfValue()(value(link_type(_x)));} 
   static color_type& color(base_ptr _x) { return (color_type&)(link_type(_x)->color); }
 
   static link_type minimum(link_type _x) { 
@@ -491,43 +491,44 @@ protected:
 
 private:
   iterator __insert(base_ptr _x, base_ptr _y, const value_type& _v) {
-    link_type to_right_if_null = (link_type) _x;
-    link_type to_parent = (link_type) _y;
-    link_type new_node;
+  link_type to_right_if_null = (link_type) _x;
+  link_type to_parent = (link_type) _y;
+  link_type new_node;
 
-    if (to_parent == header_ || 
-        to_right_if_null != NULL || 
-        key_compare_(KeyOfValue()(_v), key(to_parent))) {
-      // 아무 노드도 없을 때
-      // 첫번째 인자로 주소가 들어왔을 때,
-      // 새로 들어온 인자의 key가 두번째 인자보다 작을 때
+  if (to_parent == header_ || 
+      to_right_if_null != NULL || 
+      key_compare_(_KeyOfValue()(_v), key(to_parent))) {
+    // 아무 노드도 없을 때
+    // 첫번째 인자로 주소가 들어왔을 때,
+    // 새로 들어온 인자의 key가 두번째 인자보다 작을 때
 
-      // 두번째 인자의 left에 배치
-      new_node = create_node(_v);
-      left(to_parent) = new_node;
-      if (to_parent == header_) {
-        // 아무 노드도 없었을 때
-        root() = new_node;
-        rightmost() = new_node;
-      }
-      else if (to_parent == leftmost()) {
-        leftmost() = new_node;
-      }
+    // 두번째 인자의 left에 배치
+    new_node = create_node(_v);
+    left(to_parent) = new_node;
+    if (to_parent == header_) {
+      // 아무 노드도 없었을 때
+      root() = new_node;
+      rightmost() = new_node;
     }
-    else {
-      // 두번째 인자의 right에 배치
-      new_node = create_node(_v);
-      right(to_parent) = new_node;
-      if (to_parent == rightmost())
-        rightmost() = new_node;
+    else if (to_parent == leftmost()) {
+      leftmost() = new_node;
     }
-    parent(new_node) = to_parent;
-    left(new_node) = NULL;
-    right(new_node) = NULL;
-    // __rb_tree_rebalance(new_node, root()); // TODO:
-    ++node_count_;
-    return iterator(new_node);
   }
+  else {
+    // 두번째 인자의 right에 배치
+    new_node = create_node(_v);
+    right(to_parent) = new_node;
+    if (to_parent == rightmost())
+      rightmost() = new_node;
+  }
+  parent(new_node) = to_parent;
+  left(new_node) = NULL;
+  right(new_node) = NULL;
+  __rb_tree_rebalance_when_insertion(new_node, header_->parent); // NOTE: 여기서 root() 쓰면 컴파일 에러 남;
+  ++node_count_;
+  return iterator(new_node);
+}
+
   link_type __copy(link_type _x, link_type _p) {
     link_type top = clone_node(_x);
     top->parent = _p;
@@ -574,8 +575,8 @@ private:
   }
 public:
 // (Constructor)
-  rb_tree(const Compare& _comp = Compare()
-        , const allocator_type _alloc = Allocator()
+  rb_tree(const _Compare& _comp = _Compare()
+        , const allocator_type _alloc = _Alloc()
         , const node_allocator _node_alloc = node_allocator() )
       : node_count_(0)
       , header_(NULL)
@@ -584,7 +585,7 @@ public:
       , node_alloc_(_node_alloc)
   { __init(); }
   
-  rb_tree(const rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _x)
+  rb_tree(const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _x)
     : node_count_(0), key_compare_(_x.key_compare_) {
       header_ = alloc_node();
       color(header_) = __rb_tree_red;
@@ -609,8 +610,8 @@ public:
       dealloc_node(header_);
     }
 
-    rb_tree<Key, Value, KeyOfValue, Compare, Allocator>&
-    operator=(const rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _x) {
+    rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>&
+    operator=(const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _x) {
       if (this != &_x) {
         clear();
         node_count_ = 0;
@@ -631,7 +632,7 @@ public:
     }
 
 public:
-  Compare key_comp() const { return key_compare_; }
+  _Compare key_comp() const { return key_compare_; }
   iterator begin() { return leftmost(); }
   const_iterator begin() const { return leftmost(); }
   iterator end() { return header_; }
@@ -658,7 +659,7 @@ public:
     while (to_insert != NULL)
     {
       to_parent = to_insert;
-      comp = key_compare_(KeyOfValue()(_v), key(to_insert));
+      comp = key_compare_(_KeyOfValue()(_v), key(to_insert));
       to_insert = comp ? left(to_insert) : right(to_insert);
     }
     iterator to_check = iterator(to_parent);
@@ -671,7 +672,7 @@ public:
         --to_check;
       }
     }
-    if (key_compare_(key(to_check.node), KeyOfValue()(_v))) {
+    if (key_compare_(key(to_check.node), _KeyOfValue()(_v))) {
       return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
     }
     // 이미 같은 key가 있는 경우
@@ -680,14 +681,14 @@ public:
   iterator insert_unique(iterator _position, const value_type& _v) {
     if (_position.node == header_->left) {
       // begin()
-      if (size() > 0 && key_compare_(KeyOfValue()(_v), key(_position.node)))
+      if (size() > 0 && key_compare_(_KeyOfValue()(_v), key(_position.node)))
         return __insert(_position.node, _position.node, _v);
       else
         return (insert_unique(_v).first);
     }
     else if (_position.node == header_) {
       // end()
-      if (key_compare_(key(rightmost()), KeyOfValue()(_v)))
+      if (key_compare_(key(rightmost()), _KeyOfValue()(_v)))
         return __insert(NULL, rightmost(), _v);
       else
         return (insert_unique(_v).first);
@@ -695,8 +696,8 @@ public:
     else {
       iterator before = _position;
       --before;
-      if (key_compare_(key(before.node), KeyOfValue()(_v))
-          && key_compare_(KeyOfValue()(_v), key(_position.node))) {
+      if (key_compare_(key(before.node), _KeyOfValue()(_v))
+          && key_compare_(_KeyOfValue()(_v), key(_position.node))) {
         if (right(before.node) == NULL)
           return __insert(NULL, before.node, _v);
         else
@@ -739,7 +740,7 @@ public:
     }
   }
 
-  void swap(rb_tree<Key, Value, KeyOfValue, Compare, Allocator>& _t) {
+  void swap(rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _t) {
     ft::swap(header_, _t.header_);
     ft::swap(node_count_, _t.node_count_);
     ft::swap(key_compare_, _t.key_compare_);
@@ -845,16 +846,14 @@ public:
 
 public:
 // For alloc
-  node_allocator node_alloc() const { return node_alloc_; }
-  allocator_type alloc() const { return allocator_type(node_alloc()); }
+  allocator_type alloc() const { return allocator_type(node_alloc_); }
 
 public:
   // Debugging.
   bool __rb_verify() const;
-};
+}; // class rb_tree
 
-inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root)
-{
+inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root) {
   if (_node == 0)
     return 0;
   else {
@@ -866,10 +865,9 @@ inline int __black_count(__rb_tree_node_base* _node, __rb_tree_node_base* _root)
   }
 }
 
-template <class Key, class Value, class KeyOfValue, class Compare, class Allocator>
+template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
 bool
-rb_tree<Key, Value, KeyOfValue, Compare, Allocator>::__rb_verify() const
-{
+rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>::__rb_verify() const {
   if (node_count_ == 0 || begin() == end())
     return node_count_ == 0 && begin() == end() &&
       header_->left == header_ && header_->right == header_;

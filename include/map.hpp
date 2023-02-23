@@ -15,7 +15,7 @@ namespace ft
 // map
 
 template <class _Key, class _Tp, class _Compare = ft::less<_Key>,
-          class _Allocator = std::allocator<ft::pair<const _Key, _Tp> > >
+          class _Alloc = std::allocator<ft::pair<const _Key, _Tp> > >
 class map
 {
 public:
@@ -23,7 +23,7 @@ public:
   typedef _Tp                                      	mapped_type;
   typedef ft::pair<const key_type, mapped_type>		  value_type;
   typedef _Compare                                 	key_compare;
-  typedef _Allocator                                allocator_type;
+  typedef _Alloc                                    allocator_type;
 
   class value_compare
       : public ft::binary_function<value_type, value_type, bool>
@@ -68,11 +68,11 @@ public:
        const allocator_type& _alloc = allocator_type())
     : __tree_(_comp, _alloc) { __tree_.insert_unique(_first, _last); }
   // copy (3)
-  map (const map<_Key, _Tp, _Compare, _Allocator>& _x) : __tree_(_x.__tree_) {}
+  map (const map<_Key, _Tp, _Compare, _Alloc>& _x) : __tree_(_x.__tree_) {}
 
 // operator=
-  map<_Key, _Tp, _Compare, _Allocator>&
-  operator=(const map<_Key, _Tp, _Compare, _Allocator>& _x) {
+  map<_Key, _Tp, _Compare, _Alloc>&
+  operator=(const map<_Key, _Tp, _Compare, _Alloc>& _x) {
     __tree_ = _x.__tree_;
     return *this;
   }
@@ -124,7 +124,7 @@ public:
   size_type erase(const key_type& _x) { return __tree_.erase(_x); }
   void erase(iterator _first, iterator _last) { __tree_.erase(_first, _last); }
   // swap
-  void swap(map<_Key, _Tp, _Compare, _Allocator>& _m) { __tree_.swap(_m.__tree_); }
+  void swap(map<_Key, _Tp, _Compare, _Alloc>& _m) { __tree_.swap(_m.__tree_); }
   // clear
   void clear() { __tree_.clear(); }
 
@@ -165,7 +165,61 @@ public:
 // TODO: remove
 public:
   bool test_rb_tree() {return (__tree_.__rb_verify()); }
+
+// relational operators
+  friend bool operator==(const map&, const map&);
+  friend bool operator< (const map&, const map&);
 }; // class map
+
+
+// Non-member functions for stack
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator==(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return _lhs.__tree_ == _rhs.__tree_;
+}
+
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator< (const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return _lhs.__tree_ < _rhs.__tree_;
+}
+
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator!=(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return !(_lhs.__tree_ == _rhs.__tree_);
+}
+
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator> (const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return _rhs < _lhs;
+}
+
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator>=(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return !(_lhs < _rhs);
+}
+
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+bool
+operator<=(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
+           const map<_Key, _Tp, _Compare, _Alloc>& _rhs) {
+	return !(_rhs < _lhs);
+}
 
 } // namespace ft
 
