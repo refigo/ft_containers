@@ -1,6 +1,8 @@
 #ifndef MGO_ALGORITHM_
 #define MGO_ALGORITHM_
 
+#include "iterator.hpp"
+
 namespace ft {
 
 // __equal_to

@@ -1,5 +1,5 @@
-#ifndef __MGO_UTILS_HPP_
-#define __MGO_UTILS_HPP_
+#ifndef MGO_UTILS_HPP_
+#define MGO_UTILS_HPP_
 
 namespace ft
 {
@@ -19,6 +19,13 @@ struct binary_function {
     typedef Arg1 first_argument_type;
     typedef Arg2 second_argument_type;
     typedef Result result_type;
+};
+
+// identity
+
+template <class T>
+struct identity : public unary_function<T, T> {
+  const T& operator()(const T& x) const { return x; }
 };
 
 // select1st
