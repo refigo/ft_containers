@@ -221,6 +221,14 @@ operator<=(const map<_Key, _Tp, _Compare, _Alloc>& _lhs,
 	return !(_rhs < _lhs);
 }
 
+template <class _Key, class _Tp, class _Compare, class _Alloc>
+inline
+void
+swap(map<_Key, _Tp, _Compare>& _x,
+     map<_Key, _Tp, _Compare>& _y) {
+  _x.swap(_y);
+}
+
 } // namespace ft
 
 #endif /* __MGO_MAP_HPP_ */
