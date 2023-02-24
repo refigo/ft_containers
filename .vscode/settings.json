@@ -79,6 +79,10 @@
         "thread": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "*.ipp": "cpp",
+        "csignal": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp"
     }
 }
