@@ -2,9 +2,10 @@
 #define MGO_SET_HPP_
 
 #include "rb_tree.hpp"
-#include "utils.hpp"
 #include "algorithm.hpp"
+#include "iterator.hpp"
 #include "pair.hpp"
+#include "utils.hpp"
 #include <memory>
 
 namespace ft
@@ -14,30 +15,31 @@ namespace ft
 
 template <class _Key, class _Compare = ft::less<_Key>,
           class _Alloc = std::allocator<_Key> >
-class set {
+class set
+{
 public:
-  // typedefs:
-
-  typedef _Key key_type;
-  typedef _Key value_type;
-  typedef _Compare key_compare;
-  typedef _Compare value_compare;
+  typedef _Key                                      key_type;
+  typedef _Key                                      value_type;
+  typedef _Compare                                  key_compare;
+  typedef _Compare                                  value_compare;
   typedef _Alloc                                    allocator_type;
+
 private:
-  typedef rb_tree<key_type, value_type, 
-                  ft::identity<value_type>, key_compare, _Alloc> __base;
-  __base __tree_;  // red-black tree representing set
+  typedef ft::rb_tree<key_type, value_type, 
+            ft::identity<value_type>, key_compare, _Alloc> __base;
+  __base __tree_;
+
 public: 
-  typedef typename __base::const_pointer pointer;
-  typedef typename __base::const_pointer const_pointer;
-  typedef typename __base::const_reference reference;
-  typedef typename __base::const_reference const_reference;
-  typedef typename __base::const_iterator iterator;
-  typedef typename __base::const_iterator const_iterator;
-  typedef typename __base::const_reverse_iterator reverse_iterator;
-  typedef typename __base::const_reverse_iterator const_reverse_iterator;
-  typedef typename __base::size_type size_type;
-  typedef typename __base::difference_type difference_type;
+  typedef typename __base::const_pointer            pointer;
+  typedef typename __base::const_pointer            const_pointer;
+  typedef typename __base::const_reference          reference;
+  typedef typename __base::const_reference          const_reference;
+  typedef typename __base::const_iterator           iterator;
+  typedef typename __base::const_iterator           const_iterator;
+  typedef typename __base::const_reverse_iterator   reverse_iterator;
+  typedef typename __base::const_reverse_iterator   const_reverse_iterator;
+  typedef typename __base::size_type                size_type;
+  typedef typename __base::difference_type          difference_type;
 
 public:
 // (Constructor)
@@ -53,6 +55,9 @@ public:
     : __tree_(_comp, _alloc) { __tree_.insert_unique(_first, _last); }
   // copy (3)
   set (const set<_Key, _Compare, _Alloc>& _x) : __tree_(_x.__tree_) {}
+
+// (Destructor)
+  ~set() {}
 
 // operator=
   set<_Key, _Compare, _Alloc>&
