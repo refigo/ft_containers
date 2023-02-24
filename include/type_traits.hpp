@@ -1,6 +1,9 @@
 #ifndef MGO_TYPE_TRAITS_
 #define MGO_TYPE_TRAITS_
 
+#include <cwchar>
+#include <type_traits>
+
 namespace ft {
 
 // enable_if
@@ -13,7 +16,7 @@ struct enable_if<true, Tp_> {
     typedef Tp_ type;
 };
 
-// helper class: integral_constant
+// integral_constant
 
 template <class _Tp, _Tp __v>
 struct integral_constant
@@ -46,26 +49,32 @@ template <class _Tp> struct remove_cv
 
 // is_integral
 
-template <class _Tp> struct __is_integral_mgo                     : public false_type {};
-template <>          struct __is_integral_mgo<bool>               : public true_type {};
-template <>          struct __is_integral_mgo<char>               : public true_type {};
-template <>          struct __is_integral_mgo<signed char>        : public true_type {};
-template <>          struct __is_integral_mgo<unsigned char>      : public true_type {};
-template <>          struct __is_integral_mgo<wchar_t>            : public true_type {};
-// #ifndef _LIBCPP_HAS_NO_UNICODE_CHARS // TODO: search
-// template <>          struct __is_integral_mgo<char16_t>           : public true_type {};
-// template <>          struct __is_integral_mgo<char32_t>           : public true_type {};
-// #endif
-template <>          struct __is_integral_mgo<short>              : public true_type {};
-template <>          struct __is_integral_mgo<unsigned short>     : public true_type {};
-template <>          struct __is_integral_mgo<int>                : public true_type {};
-template <>          struct __is_integral_mgo<unsigned int>       : public true_type {};
-template <>          struct __is_integral_mgo<long>               : public true_type {};
-template <>          struct __is_integral_mgo<unsigned long>      : public true_type {};
-template <>          struct __is_integral_mgo<long long>          : public true_type {};
-template <>          struct __is_integral_mgo<unsigned long long> : public true_type {};
+template <class _Tp> struct __is_integral_                     : public false_type {};
+template <>          struct __is_integral_<bool>               : public true_type {};
+template <>          struct __is_integral_<char>               : public true_type {};
+template <>          struct __is_integral_<signed char>        : public true_type {};
+template <>          struct __is_integral_<unsigned char>      : public true_type {};
+template <>          struct __is_integral_<wchar_t>            : public true_type {};
+template <>          struct __is_integral_<char16_t>           : public true_type {};
+template <>          struct __is_integral_<char32_t>           : public true_type {};
+template <>          struct __is_integral_<short>              : public true_type {};
+template <>          struct __is_integral_<unsigned short>     : public true_type {};
+template <>          struct __is_integral_<int>                : public true_type {};
+template <>          struct __is_integral_<unsigned int>       : public true_type {};
+template <>          struct __is_integral_<long>               : public true_type {};
+template <>          struct __is_integral_<unsigned long>      : public true_type {};
+template <>          struct __is_integral_<long long>          : public true_type {};
+template <>          struct __is_integral_<unsigned long long> : public true_type {};
 
-template <class _Tp> struct is_integral : public __is_integral_mgo<typename remove_cv<_Tp>::type> {};
+template <class _Tp> struct is_integral : public __is_integral_<typename remove_cv<_Tp>::type> {};
+
+template <typename _Tp>
+bool
+operator==(ft::is_integral<_Tp> _lhs, std::is_integral<_Tp> _rhs) {return _lhs.value == _rhs.value;}
+
+template <typename _Tp>
+bool
+operator==(std::is_integral<_Tp> _lhs, ft::is_integral<_Tp> _rhs) {return _lhs.value == _rhs.value;}
 
 // add_lvalue_reference
 
