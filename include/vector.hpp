@@ -4,7 +4,6 @@
 #include "algorithm.hpp"
 #include "type_traits.hpp"
 #include "iterator.hpp"
-
 #include <algorithm>
 #include <limits>
 #include <memory>
@@ -283,7 +282,7 @@ public:
     ++(this->__end_);
     return (__make_iter(__p));
   }
-    // fill (1)
+    // fill (2)
   void insert(const_iterator __position, size_type __n, const_reference __x) {
     difference_type __off = __position - begin();
     if (this->__end_ + __n >= this->__end_cap_)
@@ -330,7 +329,6 @@ public:
     pointer __p = const_cast<pointer>(&*__position);
     iterator __r = __make_iter(__p);
     this->__alloc_.destroy(__p);
-    // std::uninitialized_copy(__position + 1, end(), __position); // REVIEW
     std::memmove(__p, __p + 1, sizeof(value_type) * (this->__end_ - __p - 1));
     --(this->__end_);
     return __r;
@@ -392,8 +390,7 @@ private:
   }
 
   // __construct_at_end()
-  void __construct_at_end(size_type __n)
-  {
+  void __construct_at_end(size_type __n) {
     do
     {
       this->__alloc_.construct(this->__end_);
@@ -401,8 +398,7 @@ private:
       --__n;
     } while (__n > 0);
   }
-  void __construct_at_end(size_type __n, const_reference __x)
-  {
+  void __construct_at_end(size_type __n, const_reference __x) {
     do
     {
       this->__alloc_.construct(this->__end_, __x);
