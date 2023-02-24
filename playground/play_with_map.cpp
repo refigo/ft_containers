@@ -1,5 +1,9 @@
 // playing
 
+// set
+#include "../include/set.hpp"
+#include <set>
+
 // map
 #include "../include/map.hpp"
 #include <map>
@@ -48,8 +52,8 @@ void play_map(void) {
 		ft::map<char, int>		my_map; // constructor empty (1)
 		// ft::map<char, int>		my_map_par(); // constructor empty (1)
 
-		bool check_test = my_map.test_rb_tree();
-		std::cout << check_test << std::endl;
+		// bool check_test = my_map.test_rb_tree();
+		// std::cout << check_test << std::endl;
 
 		char key = 'c';
 		int value = 1;

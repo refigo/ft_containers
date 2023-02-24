@@ -6,6 +6,8 @@
 #include "iterator.hpp"
 #include "pair.hpp"
 #include <memory>
+#include <algorithm> // min
+#include <limits> // numeric_limits
 
 // #include <algorithm> // for swap()
 
@@ -811,7 +813,17 @@ public:
   }
   bool empty() const { return node_count_ == 0; }
   size_type size() const { return node_count_; }
-  size_type max_size() const { return size_type(-1); } // NOTE
+  size_type max_size() const {
+    // return size_type(-1);
+    return std::min<size_type>(
+              node_alloc_.max_size(),
+              std::numeric_limits<difference_type >::max());
+  } // NOTE
+
+  // size_type max_size() const
+  //     {return std::min<size_type>(
+  //             __node_traits::max_size(__node_alloc()),
+  //             numeric_limits<difference_type >::max());}
 
 public:
 // For Modifiers

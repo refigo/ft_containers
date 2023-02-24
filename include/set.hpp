@@ -140,7 +140,6 @@ public:
   // get_allocator
   allocator_type get_allocator() { return allocator_type(__tree_.alloc()); } // NOTE
 
-
 }; // class set
 
 // Non-member functions for map
