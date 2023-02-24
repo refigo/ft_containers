@@ -1,5 +1,5 @@
-#ifndef MGO_RB_TREE__
-#define MGO_RB_TREE__
+#ifndef MGO_RB_TREE_
+#define MGO_RB_TREE_
 
 #include "algorithm.hpp"
 #include "iterator.hpp"
@@ -966,4 +966,4 @@ operator<(const rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>& _lhs,
 
 } // namespace ft
 
-#endif /* MGO_RB_TREE__ */
+#endif /* MGO_RB_TREE_ */

@@ -20,7 +20,7 @@ rm			=	rm -f
 
 INC			=	-I./include
 
-SRC			=	main_provided.cpp
+SRC			=	main.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 %.o		:	%.cpp
