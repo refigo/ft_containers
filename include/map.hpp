@@ -1,13 +1,11 @@
-#ifndef __MGO_MAP_HPP_
-#define __MGO_MAP_HPP_
+#ifndef MGO_MAP_HPP_
+#define MGO_MAP_HPP_
 
-#include "pair.hpp"
-#include "iterator.hpp"
 #include "rb_tree.hpp"
+#include "iterator.hpp"
+#include "pair.hpp"
 #include "utils.hpp"
-
 #include <memory>
-#include <algorithm> // TODO: remove
 
 namespace ft
 {
@@ -160,7 +158,7 @@ public:
 
 // Allocator:
   // get_allocator
-  allocator_type get_allocator() { return allocator_type(__tree_.alloc()); } // NOTE
+  allocator_type get_allocator() { return allocator_type(__tree_.alloc()); }
 
 }; // class map
 
@@ -223,4 +221,4 @@ swap(map<_Key, _Tp, _Compare>& _x,
 
 } // namespace ft
 
-#endif /* __MGO_MAP_HPP_ */
+#endif /* MGO_MAP_HPP_ */
