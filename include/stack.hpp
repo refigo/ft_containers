@@ -1,5 +1,5 @@
-#ifndef MGO_STACK_HPP
-#define MGO_STACK_HPP
+#ifndef MGO_STACK_HPP_
+#define MGO_STACK_HPP_
 
 #include "vector.hpp"
 
@@ -11,11 +11,11 @@ namespace ft
 template <class _Tp, class _Container = ft::vector<_Tp> >
 class stack {
 public:
-	typedef _Container									container_type;
-	typedef typename container_type::value_type			value_type;
-	typedef typename container_type::reference			reference;
+	typedef _Container																container_type;
+	typedef typename container_type::value_type				value_type;
+	typedef typename container_type::reference				reference;
 	typedef typename container_type::const_reference	const_reference;
-	typedef typename container_type::size_type			size_type;
+	typedef typename container_type::size_type				size_type;
 
 protected:
 	container_type ctnr_;
@@ -34,23 +34,22 @@ public:
 
 // Element access:
 	// top
-	reference top()				{ return ctnr_.back(); }
+	reference top()							{ return ctnr_.back(); }
 	const_reference top() const	{ return ctnr_.back(); }
 
 // Capacity:
 	// empty
-	bool empty() const			{ return ctnr_.empty(); }
+	bool empty() const					{ return ctnr_.empty(); }
 	// size
-	size_type size() const		{ return ctnr_.size(); }
+	size_type size() const			{ return ctnr_.size(); }
 
 // Modifiers:
 	// push
 	void push(const value_type& _v) { ctnr_.push_back(_v); }
-
 	// pop
 	void pop() { ctnr_.pop_back(); }
 
-// Relational operations
+// Relational operators
 	bool operator==(const stack<_Tp, _Container>& _other) const { 
 		return (ctnr_ == _other.ctnr_); }
 	bool operator< (const stack<_Tp, _Container>& _other) const {
@@ -68,4 +67,4 @@ public:
 
 } // namespace ft
 
-#endif
+#endif /* MGO_STACK_HPP_ */
