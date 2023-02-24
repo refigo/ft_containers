@@ -27,6 +27,7 @@ struct pair
 };
 
 // relational operators (pair)
+
 template <class _T1, class _T2>
 inline
 bool
