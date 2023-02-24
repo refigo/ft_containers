@@ -2,6 +2,7 @@
 #define MGO_MAP_HPP_
 
 #include "rb_tree.hpp"
+#include "algorithm.hpp"
 #include "iterator.hpp"
 #include "pair.hpp"
 #include "utils.hpp"
@@ -38,7 +39,7 @@ public:
 
 private:
     typedef ft::rb_tree<key_type, value_type, 
-            ft::select1st<value_type>, key_compare, allocator_type> __base;
+              ft::select1st<value_type>, key_compare, allocator_type> __base;
     __base __tree_;
 
 public:
@@ -67,6 +68,9 @@ public:
     : __tree_(_comp, _alloc) { __tree_.insert_unique(_first, _last); }
   // copy (3)
   map (const map<_Key, _Tp, _Compare, _Alloc>& _x) : __tree_(_x.__tree_) {}
+
+// (Destructor)
+  ~map() {}
 
 // operator=
   map<_Key, _Tp, _Compare, _Alloc>&
@@ -100,6 +104,13 @@ public:
 // Element access:
   // operator[]
   _Tp& operator[](const key_type& _k) {
+    return ((*((insert(value_type(_k, _Tp()))).first)).second);
+  }
+  // at
+  _Tp& at(const key_type& _k) {
+    return ((*((insert(value_type(_k, _Tp()))).first)).second);
+  }
+  const _Tp& at(const key_type& _k) const {
     return ((*((insert(value_type(_k, _Tp()))).first)).second);
   }
 
