@@ -1,7 +1,7 @@
-#include "../include/vector.hpp"
-#include "../include/stack.hpp"
-#include "../include/map.hpp"
-#include "../include/set.hpp"
+#include "vector.hpp"
+#include "stack.hpp"
+#include "map.hpp"
+#include "set.hpp"
 
 #include <vector>
 #include <stack>

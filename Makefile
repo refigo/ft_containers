@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME		=	test_ftcntr
+NAME		=	my_tester
 
 CXX			=	c++
 CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
@@ -18,9 +18,9 @@ CXXFLAGS	+=	-fsanitize=address -g
 
 rm			=	rm -f
 
-INC			=	-I./ -I../include/
+INC			=	-I./include
 
-SRC			=	main.cpp
+SRC			=	main_provided.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 %.o		:	%.cpp
