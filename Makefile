@@ -14,7 +14,7 @@ NAME		=	my_tester
 
 CXX			=	c++
 CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
-CXXFLAGS	+=	-fsanitize=address -g
+#CXXFLAGS	+=	-fsanitize=address -g
 
 rm			=	rm -f
 

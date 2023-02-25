@@ -490,4 +490,14 @@ swap(vector<_Tp, _Allocator>& __x, vector<_Tp, _Allocator>& __y) {
 
 } // namespace ft
 
+// Specialize std::swap() for ft::vector
+namespace std {
+template <class _Tp>
+inline
+void
+swap(ft::vector<_Tp>& __x, ft::vector<_Tp>& __y) {
+    __x.swap(__y);
+}
+}
+
 #endif /* MGO_VECTOR_HPP_ */
