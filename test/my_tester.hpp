@@ -1,8 +1,6 @@
 #ifndef MGO_MY_TESTER_
 #define MGO_MY_TESTER_
 
-
-
 #include <sys/time.h>
 #include <cstdlib>
 #include <unistd.h>
