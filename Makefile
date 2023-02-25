@@ -18,9 +18,14 @@ CXXFLAGS	=	-Wall -Wextra -Werror -std=c++98
 
 rm			=	rm -f
 
-INC			=	-I./include
+INC			=	-I./include -I./test
 
-SRC			=	main.cpp
+SRC			=	main.cpp \
+				./test/get_time.cpp \
+				./test/test_vector.cpp \
+				./test/test_stack.cpp \
+				./test/test_map.cpp \
+				./test/test_set.cpp
 OBJ			=	$(SRC:.cpp=.o)
 
 %.o		:	%.cpp

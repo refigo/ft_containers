@@ -83,6 +83,8 @@
         "*.ipp": "cpp",
         "csignal": "cpp",
         "fstream": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "__cxx_version": "cpp",
+        "filesystem": "cpp"
     }
 }
