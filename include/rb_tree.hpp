@@ -226,7 +226,7 @@ __rb_tree_rotate_right(__rb_tree_node_base* _target,
   _target->parent = substitute;
 }
 
-// __rb_tree_rebalance
+// __rb_tree_rebalance_when_insertion
 
 inline
 void
@@ -284,6 +284,100 @@ __rb_tree_rebalance_when_insertion(__rb_tree_node_base* _inserted,
   _root->color = __rb_tree_black;
 }
 
+// __rb_tree_rebalance_when_deletion
+
+inline
+void
+__rb_tree_set_del_node_and_substitute(__rb_tree_node_base*& _del_node,
+                                      __rb_tree_node_base*& _next) {
+  // Finding the real node to delete and substitute
+  if (_del_node->left == NULL) {
+    // When no both children are 
+      // or only one right child is.
+    _next = _del_node->right; // null or node
+  }
+  else {
+    if (_del_node->right == NULL) {
+      // When only one left child is.
+      _next = _del_node->left; // node
+    }
+    else {
+      // When both children are.
+      // Finding successor. -> _del_node
+      _del_node = _del_node->right;
+      while (_del_node->left != NULL)
+        _del_node = _del_node->left;
+      _next = _del_node->right;
+    }
+  }
+}
+
+inline
+void
+__rb_tree_relink_when_del_node_successor(__rb_tree_node_base*& _del_node, 
+                                         __rb_tree_node_base*& _to_delete, 
+                                         __rb_tree_node_base*& _substitute, 
+                                         __rb_tree_node_base*& _substitute_parent,
+                                         __rb_tree_node_base*& _root) {
+  // _to_delete에 대한 링크관계를 del_node로 대체하는 작업
+  _to_delete->left->parent = _del_node;
+  _del_node->left = _to_delete->left;
+  if (_del_node != _to_delete->right) {
+    // When _del_node is not direct right child.
+    _substitute_parent = _del_node->parent;
+    if (_substitute)
+      _substitute->parent = _del_node->parent;
+    _del_node->parent->left = _substitute;
+    _del_node->right = _to_delete->right;
+    _to_delete->right->parent = _del_node;
+  }
+  else {
+    _substitute_parent = _del_node;
+  }
+  if (_root == _to_delete)
+    _root = _del_node;
+  else if (_to_delete->parent->left == _to_delete)
+    _to_delete->parent->left = _del_node;
+  else
+    _to_delete->parent->right = _del_node;
+  _del_node->parent = _to_delete->parent;
+  std::swap(_del_node->color, _to_delete->color);
+  _del_node = _to_delete;
+  // _del_node now points to node to be actually deleted
+}
+
+inline
+void
+__rb_tree_relink_when_del_node_to_delete(__rb_tree_node_base*& _to_delete,
+                                         __rb_tree_node_base*& _substitute,
+                                         __rb_tree_node_base*& _root,
+                                         __rb_tree_node_base*& _leftmost,
+                                         __rb_tree_node_base*& _rightmost) {
+  if (_substitute)
+    _substitute->parent = _to_delete->parent;
+  if (_root == _to_delete) {
+    _root = _substitute;
+  }
+  else { // parent 간의 링크관계 작업
+    if (_to_delete->parent->left == _to_delete)
+      _to_delete->parent->left = _substitute;
+    else
+      _to_delete->parent->right = _substitute;
+  }
+  if (_leftmost == _to_delete) { // leftmost 변경 작업
+    if (_to_delete->right == NULL)
+      _leftmost = _to_delete->parent;
+    else
+      _leftmost = __rb_tree_node_base::minimum(_substitute);
+  }
+  if (_rightmost == _to_delete) { // rightmost 변경 작업
+    if (_to_delete->left == NULL)
+      _rightmost = _to_delete->parent;
+    else
+      _rightmost = __rb_tree_node_base::maximum(_substitute);
+  }
+}
+
 inline
 __rb_tree_node_base*
 __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
@@ -291,105 +385,40 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
                                   __rb_tree_node_base*& _leftmost,
                                   __rb_tree_node_base*& _rightmost) {
   __rb_tree_node_base* del_node =_to_delete;
-  __rb_tree_node_base* next = NULL;
-  __rb_tree_node_base* next_parent = NULL;
+  __rb_tree_node_base* substitute = NULL;
+  __rb_tree_node_base* substitute_parent = NULL;
 
-  // Finding the real node to delete
-  if (del_node->left == NULL) {
-    // When no both children are 
-      // or only one right child is.
-    next = del_node->right; // null or node
+  __rb_tree_set_del_node_and_substitute(del_node, substitute);
+  if (del_node == _to_delete) {
+    substitute_parent = _to_delete->parent;
+    __rb_tree_relink_when_del_node_to_delete(_to_delete, substitute, _root, 
+                                             _leftmost, _rightmost);
+  } else {
+    __rb_tree_relink_when_del_node_successor(del_node, _to_delete, 
+                                             substitute, substitute_parent, _root);
   }
-  else {
-    if (del_node->right == NULL) {
-      // When only one left child is.
-      next = del_node->left; // node
-    }
-    else {
-      // When both children are.
-      // Finding successor. -> del_node
-      del_node = del_node->right;
-      while (del_node->left != NULL)
-        del_node = del_node->left;
-      next = del_node->right;
-    }
-  }
-
-  // Modifying node linking
-  if (del_node != _to_delete) {
-    // When del_node is _to_delete's successor
-      // _to_delete에 대한 링크관계를 del_node로 대체하는 작업
-    _to_delete->left->parent = del_node;
-    del_node->left = _to_delete->left;
-    if (del_node != _to_delete->right) {
-      // When del_node is not direct right child.
-      next_parent = del_node->parent;
-      if (next) next->parent = del_node->parent;
-      del_node->parent->left = next;
-      del_node->right = _to_delete->right;
-      _to_delete->right->parent = del_node;
-    }
-    else {
-      next_parent = del_node;
-    }
-    if (_root == _to_delete)
-      _root = del_node;
-    else if (_to_delete->parent->left == _to_delete)
-      _to_delete->parent->left = del_node;
-    else
-      _to_delete->parent->right = del_node;
-    del_node->parent = _to_delete->parent;
-    std::swap(del_node->color, _to_delete->color);
-    del_node = _to_delete; // del_node now points to node to be actually deleted
-  }
-  else {
-    // When del_node is _to_delete
-    next_parent = del_node->parent;
-    if (next) next->parent = del_node->parent;
-    if (_root == _to_delete) {
-      _root = next;
-    }
-    else { // parent 간의 링크관계 작업
-      if (_to_delete->parent->left == _to_delete)
-        _to_delete->parent->left = next;
-      else
-        _to_delete->parent->right = next;
-    }
-    if (_leftmost == _to_delete) { // leftmost 변경 작업
-      if (_to_delete->right == NULL)
-        _leftmost = _to_delete->parent;
-      else
-        _leftmost = __rb_tree_node_base::minimum(next);
-    }
-    if (_rightmost == _to_delete) { // rightmost 변경 작업
-      if (_to_delete->left == NULL)
-        _rightmost = _to_delete->parent;
-      else
-        _rightmost = __rb_tree_node_base::maximum(next);
-    }
-  }
-
-  // rebalancing
-  if (del_node->color != __rb_tree_red) { // Getting Extra-Black
-    while (next != _root && (next == NULL || next->color == __rb_tree_black)) {
+  // Rebalancing tree
+  if (del_node->color == __rb_tree_black) { // Getting Extra-Black
+    while ((substitute != _root) && 
+           (substitute == NULL || substitute->color == __rb_tree_black)) {
       // When Doubly-Black
-      if (next == next_parent->left) {
+      if (substitute == substitute_parent->left) {
         // left
-        __rb_tree_node_base* sibling = next_parent->right;
+        __rb_tree_node_base* sibling = substitute_parent->right;
         if (sibling->color == __rb_tree_red) {
           // case 1
           sibling->color = __rb_tree_black;
-          next_parent->color = __rb_tree_red;
-          __rb_tree_rotate_left(next_parent, _root);
-          sibling = next_parent->right;
+          substitute_parent->color = __rb_tree_red;
+          __rb_tree_rotate_left(substitute_parent, _root);
+          sibling = substitute_parent->right;
         }
         if ((sibling->left == NULL || sibling->left->color == __rb_tree_black) &&
             (sibling->right == NULL || sibling->right->color == __rb_tree_black)) {
           // case 2
             // trick: switching color to bubble up extra-black
           sibling->color = __rb_tree_red;
-          next = next_parent;
-          next_parent = next_parent->parent;
+          substitute = substitute_parent;
+          substitute_parent = substitute_parent->parent;
         }
         else {
           if (sibling->right == NULL || sibling->right->color == __rb_tree_black) {
@@ -397,33 +426,33 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
             sibling->left->color = __rb_tree_black;
             sibling->color = __rb_tree_red;
             __rb_tree_rotate_right(sibling, _root);
-            sibling = next_parent->right;
+            sibling = substitute_parent->right;
           }
           // case 4
-          sibling->color = next_parent->color;
-          next_parent->color = __rb_tree_black;
+          sibling->color = substitute_parent->color;
+          substitute_parent->color = __rb_tree_black;
           sibling->right->color = __rb_tree_black;
-          __rb_tree_rotate_left(next_parent, _root);
+          __rb_tree_rotate_left(substitute_parent, _root);
           break;
         }
       }
       else {
         // right
-        __rb_tree_node_base* sibling = next_parent->left;
+        __rb_tree_node_base* sibling = substitute_parent->left;
         if (sibling->color == __rb_tree_red) {
           // case 1
           sibling->color = __rb_tree_black;
-          next_parent->color = __rb_tree_red;
-          __rb_tree_rotate_right(next_parent, _root);
-          sibling = next_parent->left;
+          substitute_parent->color = __rb_tree_red;
+          __rb_tree_rotate_right(substitute_parent, _root);
+          sibling = substitute_parent->left;
         }
         if ((sibling->right == NULL || sibling->right->color == __rb_tree_black) &&
             (sibling->left == NULL || sibling->left->color == __rb_tree_black)) {
           // case 2
             // trick: switching color to bubble up extra-black
           sibling->color = __rb_tree_red;
-          next = next_parent;
-          next_parent = next_parent->parent;
+          substitute = substitute_parent;
+          substitute_parent = substitute_parent->parent;
         }
         else {
           if (sibling->left == NULL || sibling->left->color == __rb_tree_black) {
@@ -431,18 +460,18 @@ __rb_tree_rebalance_when_deletion(__rb_tree_node_base* _to_delete,
             sibling->right->color = __rb_tree_black;
             sibling->color = __rb_tree_red;
             __rb_tree_rotate_left(sibling, _root);
-            sibling = next_parent->left;
+            sibling = substitute_parent->left;
           }
           // case 4
-          sibling->color = next_parent->color;
-          next_parent->color = __rb_tree_black;
+          sibling->color = substitute_parent->color;
+          substitute_parent->color = __rb_tree_black;
           sibling->left->color = __rb_tree_black;
-          __rb_tree_rotate_right(next_parent, _root);
+          __rb_tree_rotate_right(substitute_parent, _root);
           break;
         }
       }
     }
-    if (next) next->color = __rb_tree_black;
+    if (substitute) substitute->color = __rb_tree_black;
   }
   return del_node;
 }
@@ -484,32 +513,28 @@ protected:
   allocator_type  value_alloc_;
   node_allocator  node_alloc_;
 
-  link_type& root() const { return (link_type&) header_->parent; }
-  link_type& leftmost() const { return (link_type&) header_->left; }
-  link_type& rightmost() const { return (link_type&) header_->right; }
+  link_type& root() const                 { return (link_type&) header_->parent; }
+  link_type& leftmost() const             { return (link_type&) header_->left; }
+  link_type& rightmost() const            { return (link_type&) header_->right; }
 
-  static link_type& left(link_type _x) { return (link_type&)(_x->left); }
-  static link_type& right(link_type _x) { return (link_type&)(_x->right); }
-  static link_type& parent(link_type _x) { return (link_type&)(_x->parent); }
-  static reference value(link_type _x) { return _x->value_field; }
-  static const _Key& key(link_type _x) { return _KeyOfValue()(value(_x)); }
-  static color_type& color(link_type _x) { return (color_type&)(_x->color); }
+  static link_type& left(link_type _x)    { return (link_type&)(_x->left); }
+  static link_type& right(link_type _x)   { return (link_type&)(_x->right); }
+  static link_type& parent(link_type _x)  { return (link_type&)(_x->parent); }
+  static reference value(link_type _x)    { return _x->value_field; }
+  static const _Key& key(link_type _x)    { return _KeyOfValue()(value(_x)); }
+  static color_type& color(link_type _x)  { return (color_type&)(_x->color); }
 
-  static link_type& left(base_ptr _x) { return (link_type&)(_x->left); }
-  static link_type& right(base_ptr _x) { return (link_type&)(_x->right); }
-  static link_type& parent(base_ptr _x) { return (link_type&)(_x->parent); }
-  static reference value(base_ptr _x) { return ((link_type)_x)->value_field; }
-  static const _Key& key(base_ptr _x) { return _KeyOfValue()(value(link_type(_x)));} 
-  static color_type& color(base_ptr _x) {
-    return (color_type&)(link_type(_x)->color);
-  }
+  static link_type& left(base_ptr _x)     { return (link_type&)(_x->left); }
+  static link_type& right(base_ptr _x)    { return (link_type&)(_x->right); }
+  static link_type& parent(base_ptr _x)   { return (link_type&)(_x->parent); }
+  static reference value(base_ptr _x)     { return ((link_type)_x)->value_field; }
+  static const _Key& key(base_ptr _x)     { return _KeyOfValue()(value(link_type(_x)));} 
+  static color_type& color(base_ptr _x)   { return (color_type&)(link_type(_x)->color); }
 
   static link_type minimum(link_type _x) { 
-    return (link_type)  __rb_tree_node_base::minimum(_x);
-  }
+    return (link_type)  __rb_tree_node_base::minimum(_x); }
   static link_type maximum(link_type _x) {
-    return (link_type) __rb_tree_node_base::maximum(_x);
-  }
+    return (link_type) __rb_tree_node_base::maximum(_x); }
 
 protected:
   link_type alloc_node() {
@@ -730,8 +755,7 @@ public:
     if (key_compare_(key(to_check.node), _KeyOfValue()(_v))) {
       return (pair<iterator,bool>(__insert(to_insert, to_parent, _v), true));
     }
-    // 이미 같은 key가 있는 경우
-    return pair<iterator,bool>(to_check, false);
+    return pair<iterator,bool>(to_check, false); // 이미 같은 key가 있는 경우
   }
 
   iterator insert_unique(iterator _position, const value_type& _v) {
@@ -865,14 +889,14 @@ public:
     link_type leading = root();
 
     while (leading != NULL) {
-      if (!key_compare_(key(leading), _k)) // 찾는 key가 leading node와 같거나 혹은 보다 더 작을때
+      if (!key_compare_(key(leading), _k))
         keeping = leading, leading = left(leading);
-      else // 찾는 key가 더 클 때
+      else
         leading = right(leading);
     }
     iterator checking = iterator(keeping);
     return ((checking == end() || key_compare_(_k, key(checking.node))) 
-            ? end() : checking); // 같은 key를 못 찾은 경우 end()를 반환
+            ? end() : checking);
   }
 
   // count
@@ -883,7 +907,7 @@ public:
     return n;
   }
 
-  // lower_bound: 인자로 들어온 key와 같거나 key 보다 작은 것 중에 가장 큰 것을 반환
+  // lower_bound
   iterator lower_bound(const key_type& _k) {
     link_type keeping = header_;
     link_type leading = root();
@@ -901,7 +925,7 @@ public:
     link_type leading = root();
 
     while (leading != NULL) {
-      if (!key_compare_(key(leading), _k)) // _k가 같거나 작을 때
+      if (!key_compare_(key(leading), _k))
         keeping = leading, leading = left(leading);
       else
         leading = right(leading);
@@ -909,7 +933,7 @@ public:
     return const_iterator(keeping);
   }
 
-  // upper_bound: 인자로 들어온 key 보다 큰 것 중에 가장 작은 것을 반환
+  // upper_bound
   iterator upper_bound(const key_type& _k) {
     link_type keeping = header_;
     link_type leading = root();
@@ -927,13 +951,14 @@ public:
     link_type leading = root();
 
     while (leading != NULL) {
-      if (key_compare_(_k, key(leading))) // _k가 작을 때
+      if (key_compare_(_k, key(leading)))
         keeping = leading, leading = left(leading);
       else
         leading = right(leading);
     }
     return const_iterator(keeping);
   }
+
   // equal_range
   ft::pair<iterator,iterator> equal_range(const key_type& _k) {
     return ft::pair<iterator,iterator>(lower_bound(_k), upper_bound(_k));
