@@ -273,11 +273,7 @@ public:
     if (this->__end_ >= this->__end_cap_)
       reserve(__recommend(size() + 1));
     pointer __p = this->__begin_ + __off;
-    pointer __moving_from_end = this->__end_;
-    for (; __moving_from_end != __p; --__moving_from_end) {
-      this->__alloc_.construct(__moving_from_end, *(__moving_from_end - 1));
-      this->__alloc_.destroy(__moving_from_end - 1);
-    }
+    std::memmove(__p + 1, __p, sizeof(value_type) * (this->__end_ - __p));
     this->__alloc_.construct(__p, __x);
     ++(this->__end_);
     return (__make_iter(__p));
@@ -288,11 +284,7 @@ public:
     if (this->__end_ + __n >= this->__end_cap_)
       reserve(__recommend(size() + __n));
     pointer __p = this->__begin_ + __off;
-    pointer __moving_from_new_end = this->__end_ + __n - 1;
-    for (; __moving_from_new_end != __p + __n - 1; --__moving_from_new_end) {
-      this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
-      this->__alloc_.destroy(__moving_from_new_end - __n);
-    }
+    std::memmove(__p + __n, __p, sizeof(value_type) * (this->__end_ - __p));
     for (size_type i(0); i < __n; ++i)
       this->__alloc_.construct(__p + i, __x);
     this->__end_ += __n;
@@ -314,11 +306,7 @@ public:
     if (this->__end_ + __n >= this->__end_)
       reserve(__recommend(size() + __n));
     pointer __p = this->__begin_ + __off;
-    pointer __moving_from_new_end = this->__end_ + __n - 1;
-    for (; __moving_from_new_end != __p + __n - 1; --__moving_from_new_end) {
-      this->__alloc_.construct(__moving_from_new_end, *(__moving_from_new_end - __n));
-      this->__alloc_.destroy(__moving_from_new_end - __n);
-    }
+    std::memmove(__p + __n, __p, sizeof(value_type) * (this->__end_ - __p));
     for (; __first != __last; ++__first, ++__p)
       this->__alloc_.construct(__p, *__first);
     this->__end_ += __n;
